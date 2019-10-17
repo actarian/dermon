@@ -1,0 +1,48 @@
+﻿{
+	"targets": {
+		"browser": {
+			"compile": [{
+				"input": "src/scss/main.scss",
+				"output": "docs/css/main.css",
+				"minify": false
+			}, {
+				"input": "src/js/main.js",
+				"output": "docs/js/main.js",
+				"minify": false
+			}],
+			"bundle": [{
+				"input": [
+					"node_modules/whatwg-fetch/dist/fetch.umd.js",
+					"node_modules/promise-polyfill/dist/polyfill.js",
+					"src/polyfills/polyfills.js"
+				],
+				"output": "docs/js/polyfills.js",
+				"minify": false
+			}, {
+				"input": [
+					"node_modules/gsap/src/uncompressed/easing/EasePack.js",
+					"node_modules/gsap/src/uncompressed/TweenMax.js",
+					"node_modules/splitting/dist/splitting.js",
+					"node_modules/three/build/three.js",
+					"node_modules/three/examples/js/loaders/GLTFLoader.js",
+					"node_modules/three/examples/js/loaders/FBXLoader.js",
+					"node_modules/three/examples/js/libs/inflate.min.js",
+					"node_modules/three/examples/js/loaders/EquirectangularToCubeGenerator.js",
+					"node_modules/three/examples/js/pmrem/PMREMGenerator.js",
+					"node_modules/three/examples/js/pmrem/PMREMCubeUVPacker.js"
+				],
+				"output": "docs/js/vendors.js",
+				"minify": false
+			}]
+		}
+	},
+	"options": {
+		"tfs": false,
+		"server": {
+			"src": "./docs",
+			"path": "/dermon/",
+			"host": "0.0.0.0",
+			"port": 40666
+		}
+	}
+}
