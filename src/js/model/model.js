@@ -17,16 +17,15 @@ export default class Model {
 
 	load(callback) {
 		const loader = new THREE.FBXLoader();
-		loader.load('./threejs/models/latte-corpo.fbx', (object) => {
+		loader.load('./threejs/models/latte-corpo-6.fbx', (object) => {
 				object.traverse((child) => {
 					if (child instanceof THREE.Mesh) {
-						if (child.name === 'MODEL_PLASTIC_COSMETIC_TUBE_1483_PART_1_N3D') {
+						if (child.name === 'model') {
 							child.material = this.world.materials.tubetto;
 						} else {
 							child.material = this.world.materials.white;
 						}
 						console.log(child.name, child.material);
-						child.material.roughness = 0.1;
 					}
 				});
 				if (typeof callback === 'function') {

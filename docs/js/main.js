@@ -17089,7 +17089,94 @@ if (example) {
   });
 }
 
-},{"./model/model":200,"./services/dom.service":201,"./title/title":205,"./world/world":206}],200:[function(require,module,exports){
+},{"./model/model":201,"./services/dom.service":202,"./title/title":205,"./world/world":206}],200:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/* jshint esversion: 6 */
+class Materials {
+  constructor(renderer) {
+    this.renderer = renderer;
+    const textures = this.textures = this.addTextures();
+    const white = this.white = this.getWhite();
+    const tubetto = this.tubetto = this.getTubetto();
+    this.getEquirectangular('threejs/environment/environment-03.jpg', (texture, backgroundTexture) => {
+      textures.environment = texture;
+      white.envMap = texture;
+      white.needsUpdate = true;
+      tubetto.envMap = texture;
+      tubetto.needsUpdate = true;
+    });
+  }
+
+  addTextures() {
+    const loader = new THREE.TextureLoader();
+    const textures = {
+      tubetto: loader.load('threejs/models/latte-corpo-4.jpg')
+    };
+    this.loader = loader;
+    return textures;
+  }
+
+  getWhite() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'white',
+      color: 0xffffff,
+      roughness: 0.4,
+      metalness: 0.01,
+      envMapIntensity: 2
+    });
+    return material;
+  }
+
+  getTubetto() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'tubetto',
+      color: 0xffffff,
+      roughness: 0.4,
+      metalness: 0.01,
+      map: this.textures.tubetto,
+      envMapIntensity: 2
+    });
+    return material;
+  }
+
+  getEquirectangular(path, callback) {
+    const loader = this.loader;
+    const renderer = this.renderer;
+    loader.load(path, texture => {
+      texture.encoding = THREE.sRGBEncoding;
+      const generator = new THREE.EquirectangularToCubeGenerator(texture, {
+        resolution: 512
+      });
+      const background = generator.renderTarget;
+      const cubeMapTexture = generator.update(renderer);
+      const pmremGenerator = new THREE.PMREMGenerator(cubeMapTexture);
+      pmremGenerator.update(renderer);
+      const pmremCubeUVPacker = new THREE.PMREMCubeUVPacker(pmremGenerator.cubeLods);
+      pmremCubeUVPacker.update(renderer);
+      const cubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
+      texture.dispose();
+      pmremGenerator.dispose();
+      pmremCubeUVPacker.dispose();
+
+      if (typeof callback === 'function') {
+        callback(cubeRenderTarget.texture, background.texture);
+      }
+    });
+  }
+
+}
+
+exports.default = Materials;
+
+},{}],201:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17117,17 +17204,16 @@ class Model {
 
   load(callback) {
     const loader = new THREE.FBXLoader();
-    loader.load('./threejs/models/latte-corpo.fbx', object => {
+    loader.load('./threejs/models/latte-corpo-6.fbx', object => {
       object.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          if (child.name === 'MODEL_PLASTIC_COSMETIC_TUBE_1483_PART_1_N3D') {
+          if (child.name === 'model') {
             child.material = this.world.materials.tubetto;
           } else {
             child.material = this.world.materials.white;
           }
 
           console.log(child.name, child.material);
-          child.material.roughness = 0.1;
         }
       });
 
@@ -17187,7 +17273,7 @@ class Model {
 
 exports.default = Model;
 
-},{"../services/dom.service":201}],201:[function(require,module,exports){
+},{"../services/dom.service":202}],202:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17725,7 +17811,7 @@ DomService.scroll$ = function () {
 
 DomService.scrollAndRect$ = (0, _rxjs.combineLatest)(DomService.scroll$, DomService.windowRect$);
 
-},{"./rect":202,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],202:[function(require,module,exports){
+},{"./rect":203,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],203:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17868,7 +17954,7 @@ class Rect {
 
 exports.default = Rect;
 
-},{}],203:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17921,93 +18007,6 @@ class Emittable {
 }
 
 exports.default = Emittable;
-
-},{}],204:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/* jshint esversion: 6 */
-class Materials {
-  constructor(renderer) {
-    this.renderer = renderer;
-    const textures = this.textures = this.addTextures();
-    const white = this.white = this.getWhite();
-    const tubetto = this.tubetto = this.getTubetto();
-    this.getEquirectangular('threejs/environment/environment-02.jpg', (texture, backgroundTexture) => {
-      textures.environment = texture;
-      white.envMap = texture;
-      white.needsUpdate = true;
-      tubetto.envMap = texture;
-      tubetto.needsUpdate = true;
-    });
-  }
-
-  addTextures() {
-    const loader = new THREE.TextureLoader();
-    const textures = {
-      tubetto: loader.load('threejs/models/text.jpg')
-    };
-    this.loader = loader;
-    return textures;
-  }
-
-  getWhite() {
-    let material;
-    material = new THREE.MeshStandardMaterial({
-      name: 'white',
-      color: 0xffffff,
-      roughness: 0.99,
-      metalness: 0.01,
-      envMapIntensity: 1.2
-    });
-    return material;
-  }
-
-  getTubetto() {
-    let material;
-    material = new THREE.MeshStandardMaterial({
-      name: 'tubetto',
-      color: 0xffffff,
-      roughness: 0.99,
-      metalness: 0.01,
-      map: this.textures.tubetto,
-      envMapIntensity: 1.2
-    });
-    return material;
-  }
-
-  getEquirectangular(path, callback) {
-    const loader = this.loader;
-    const renderer = this.renderer;
-    loader.load(path, texture => {
-      texture.encoding = THREE.sRGBEncoding;
-      const generator = new THREE.EquirectangularToCubeGenerator(texture, {
-        resolution: 512
-      });
-      const background = generator.renderTarget;
-      const cubeMapTexture = generator.update(renderer);
-      const pmremGenerator = new THREE.PMREMGenerator(cubeMapTexture);
-      pmremGenerator.update(renderer);
-      const pmremCubeUVPacker = new THREE.PMREMCubeUVPacker(pmremGenerator.cubeLods);
-      pmremCubeUVPacker.update(renderer);
-      const cubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
-      texture.dispose();
-      pmremGenerator.dispose();
-      pmremCubeUVPacker.dispose();
-
-      if (typeof callback === 'function') {
-        callback(cubeRenderTarget.texture, background.texture);
-      }
-    });
-  }
-
-}
-
-exports.default = Materials;
 
 },{}],205:[function(require,module,exports){
 "use strict";
@@ -18066,7 +18065,7 @@ class Title {
 
 exports.default = Title;
 
-},{"../services/dom.service":201}],206:[function(require,module,exports){
+},{"../services/dom.service":202}],206:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18074,11 +18073,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _materials = _interopRequireDefault(require("../materials/materials"));
+
 var _rect = _interopRequireDefault(require("../services/rect"));
 
 var _emittable = _interopRequireDefault(require("../threejs/interactive/emittable"));
-
-var _materials = _interopRequireDefault(require("../threejs/materials/materials"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18089,6 +18088,7 @@ const MIN_DEVICE_PIXEL_RATIO = 1;
 class World extends _emittable.default {
   constructor(container, product) {
     super();
+    this.clock = new THREE.Clock();
     this.container = container;
     this.size = {
       width: 0,
@@ -18149,16 +18149,16 @@ class World extends _emittable.default {
     const lights = new THREE.Group();
     lights.rotationScroll = new THREE.Vector3();
     lights.rotationTime = new THREE.Vector3();
-    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.3);
+    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.1);
     light0.position.set(0, 0, 0);
     lights.light0 = light0;
     parent.add(light0);
-    const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
-    light1.position.set(0, 30, -100);
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
+    light1.position.set(-10, 30, 100);
     lights.light1 = light1;
     lights.add(light1);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-    light2.position.set(0, -30, 100);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.1);
+    light2.position.set(10, -30, 100);
     lights.light2 = light2;
     lights.add(light2);
     parent.add(lights);
@@ -18203,12 +18203,13 @@ class World extends _emittable.default {
       const scene = this.scene;
       /*
       const delta = this.clock.getDelta();
-      const time = this.clock.getElapsedTime();
-      const tick = Math.floor(time * 60);
       */
 
-      this.lights.rotationTime.y += 0.004;
-      this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
+      const time = this.clock.getElapsedTime();
+      const tick = Math.floor(time * 60);
+      this.lights.rotationTime.y += 0.004; // this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
+
+      this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 0.1);
       const camera = this.camera;
       renderer.render(scene, camera);
     } catch (error) {
@@ -18231,5 +18232,5 @@ class World extends _emittable.default {
 
 exports.default = World;
 
-},{"../services/rect":202,"../threejs/interactive/emittable":203,"../threejs/materials/materials":204}]},{},[199]);
+},{"../materials/materials":200,"../services/rect":203,"../threejs/interactive/emittable":204}]},{},[199]);
 //# sourceMappingURL=main.js.map
