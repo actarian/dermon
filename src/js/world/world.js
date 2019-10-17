@@ -7,7 +7,7 @@ import Materials from '../threejs/materials/materials';
 const CAMERA_DISTANCE = 2;
 const MIN_DEVICE_PIXEL_RATIO = 1;
 
-export default class Example01 extends Emittable {
+export default class World extends Emittable {
 
 	constructor(container, product) {
 		super();
@@ -139,7 +139,7 @@ export default class Example01 extends Emittable {
 	}
 
 	static init() {
-		[...document.querySelectorAll('[example-01]')].map(x => new Example01(x));
+		[...document.querySelectorAll('[example-01]')].map(x => new World(x));
 	}
 
 }

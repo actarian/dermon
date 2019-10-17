@@ -1,4 +1,1815 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function (global){
+"use strict";
+
+/* locomotive-scroll v3.1.7 | MIT License | https://github.com/locomotivemtl/locomotive-scroll */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() : typeof define === 'function' && define.amd ? define(factory) : (global = global || self, global.LocomotiveScroll = factory());
+})(void 0, function () {
+  'use strict';
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(source, true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(source).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) _setPrototypeOf(subClass, superClass);
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return _assertThisInitialized(self);
+  }
+
+  function _superPropBase(object, property) {
+    while (!Object.prototype.hasOwnProperty.call(object, property)) {
+      object = _getPrototypeOf(object);
+      if (object === null) break;
+    }
+
+    return object;
+  }
+
+  function _get(target, property, receiver) {
+    if (typeof Reflect !== "undefined" && Reflect.get) {
+      _get = Reflect.get;
+    } else {
+      _get = function _get(target, property, receiver) {
+        var base = _superPropBase(target, property);
+
+        if (!base) return;
+        var desc = Object.getOwnPropertyDescriptor(base, property);
+
+        if (desc.get) {
+          return desc.get.call(receiver);
+        }
+
+        return desc.value;
+      };
+    }
+
+    return _get(target, property, receiver || target);
+  }
+
+  var defaults = {
+    el: document,
+    elMobile: document,
+    name: 'scroll',
+    offset: 0,
+    repeat: false,
+    smooth: false,
+    smoothMobile: false,
+    direction: 'vertical',
+    inertia: 1,
+    "class": 'is-inview',
+    scrollbarClass: 'c-scrollbar',
+    scrollingClass: 'has-scroll-scrolling',
+    draggingClass: 'has-scroll-dragging',
+    smoothClass: 'has-scroll-smooth',
+    initClass: 'has-scroll-init',
+    getSpeed: false,
+    getDirection: false
+  };
+
+  var _default =
+  /*#__PURE__*/
+  function () {
+    function _default() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      _classCallCheck(this, _default);
+
+      window.scrollTo(0, 0);
+      Object.assign(this, defaults, options);
+      this.namespace = 'locomotive';
+      this.html = document.documentElement;
+      this.windowHeight = window.innerHeight;
+      this.windowMiddle = this.windowHeight / 2;
+      this.els = [];
+      this.hasScrollTicking = false;
+      this.hasCallEventSet = false;
+      this.checkScroll = this.checkScroll.bind(this);
+      this.checkResize = this.checkResize.bind(this);
+      this.instance = {
+        scroll: {
+          x: 0,
+          y: 0
+        },
+        limit: this.html.offsetHeight
+      };
+
+      if (this.getDirection) {
+        this.instance.direction = null;
+      }
+
+      if (this.getDirection) {
+        this.instance.speed = 0;
+      }
+
+      this.html.classList.add(this.initClass);
+      window.addEventListener('resize', this.checkResize, false);
+    }
+
+    _createClass(_default, [{
+      key: "init",
+      value: function init() {
+        this.initEvents();
+      }
+    }, {
+      key: "checkScroll",
+      value: function checkScroll() {
+        this.dispatchScroll();
+      }
+    }, {
+      key: "checkResize",
+      value: function checkResize() {}
+    }, {
+      key: "initEvents",
+      value: function initEvents() {
+        var _this = this;
+
+        this.scrollToEls = this.el.querySelectorAll("[data-".concat(this.name, "-to]"));
+        this.setScrollTo = this.setScrollTo.bind(this);
+        this.scrollToEls.forEach(function (el) {
+          el.addEventListener('click', _this.setScrollTo, false);
+        });
+      }
+    }, {
+      key: "setScrollTo",
+      value: function setScrollTo(event) {
+        event.preventDefault();
+        this.scrollTo(event.currentTarget.getAttribute("data-".concat(this.name, "-href")) || event.currentTarget.getAttribute('href'), event.currentTarget.getAttribute("data-".concat(this.name, "-offset")));
+      }
+    }, {
+      key: "addElements",
+      value: function addElements() {}
+    }, {
+      key: "detectElements",
+      value: function detectElements(hasCallEventSet) {
+        var _this2 = this;
+
+        var scrollTop = this.instance.scroll.y;
+        var scrollBottom = scrollTop + this.windowHeight;
+        this.els.forEach(function (el, i) {
+          if (el && (!el.inView || hasCallEventSet)) {
+            if (scrollBottom >= el.top && scrollTop < el.bottom) {
+              _this2.setInView(el, i);
+            }
+          }
+
+          if (el && el.inView) {
+            if (scrollBottom < el.top || scrollTop > el.bottom) {
+              _this2.setOutOfView(el, i);
+            }
+          }
+        });
+        this.els = this.els.filter(function (current, i) {
+          return current !== null;
+        });
+        this.hasScrollTicking = false;
+      }
+    }, {
+      key: "setInView",
+      value: function setInView(current, i) {
+        this.els[i].inView = true;
+        current.el.classList.add(current["class"]);
+
+        if (current.call && this.hasCallEventSet) {
+          this.dispatchCall(current, 'enter');
+
+          if (!current.repeat) {
+            this.els[i].call = false;
+          }
+        }
+
+        if (!current.repeat && !current.speed && !current.sticky) {
+          if (!current.call || current.call && this.hasCallEventSet) {
+            this.els[i] = null;
+          }
+        }
+      }
+    }, {
+      key: "setOutOfView",
+      value: function setOutOfView(current, i) {
+        if (current.repeat || current.speed !== undefined) {
+          this.els[i].inView = false;
+        }
+
+        if (current.call && this.hasCallEventSet) {
+          this.dispatchCall(current, 'exit');
+        }
+
+        if (current.repeat) {
+          current.el.classList.remove(current["class"]);
+        }
+      }
+    }, {
+      key: "dispatchCall",
+      value: function dispatchCall(current, way) {
+        this.callWay = way;
+        this.callValue = current.call.split(',').map(function (item) {
+          return item.trim();
+        });
+        this.callObj = current;
+        if (this.callValue.length == 1) this.callValue = this.callValue[0];
+        var callEvent = new Event(this.namespace + 'call');
+        this.el.dispatchEvent(callEvent);
+      }
+    }, {
+      key: "dispatchScroll",
+      value: function dispatchScroll() {
+        var scrollEvent = new Event(this.namespace + 'scroll');
+        this.el.dispatchEvent(scrollEvent);
+      }
+    }, {
+      key: "setEvents",
+      value: function setEvents(event, func) {
+        var _this3 = this;
+
+        this.el.addEventListener(this.namespace + event, function () {
+          switch (event) {
+            case 'scroll':
+              return func(_this3.instance);
+
+            case 'call':
+              return func(_this3.callValue, _this3.callWay, _this3.callObj);
+
+            default:
+              return func();
+          }
+        }, false);
+
+        if (event === 'call') {
+          this.hasCallEventSet = true;
+          this.detectElements(true);
+        }
+      }
+    }, {
+      key: "startScroll",
+      value: function startScroll() {}
+    }, {
+      key: "stopScroll",
+      value: function stopScroll() {}
+    }, {
+      key: "setScroll",
+      value: function setScroll(x, y) {
+        this.instance.scroll = {
+          x: 0,
+          y: 0
+        };
+      }
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        var _this4 = this;
+
+        window.removeEventListener('resize', this.checkResize, false);
+        this.scrollToEls.forEach(function (el) {
+          el.removeEventListener('click', _this4.setScrollTo, false);
+        });
+      }
+    }]);
+
+    return _default;
+  }();
+
+  var _default$1 =
+  /*#__PURE__*/
+  function (_Core) {
+    _inherits(_default, _Core);
+
+    function _default() {
+      var _this;
+
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      _classCallCheck(this, _default);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(_default).call(this, options));
+      window.addEventListener('scroll', _this.checkScroll, false);
+      return _this;
+    }
+
+    _createClass(_default, [{
+      key: "init",
+      value: function init() {
+        this.instance.scroll.y = window.scrollY;
+        this.addElements();
+        this.detectElements();
+
+        _get(_getPrototypeOf(_default.prototype), "init", this).call(this);
+      }
+    }, {
+      key: "checkScroll",
+      value: function checkScroll() {
+        var _this2 = this;
+
+        _get(_getPrototypeOf(_default.prototype), "checkScroll", this).call(this);
+
+        this.instance.scroll.y = window.scrollY;
+
+        if (this.els.length) {
+          if (!this.hasScrollTicking) {
+            requestAnimationFrame(function () {
+              _this2.detectElements();
+            });
+            this.hasScrollTicking = true;
+          }
+        }
+      }
+    }, {
+      key: "checkResize",
+      value: function checkResize() {
+        var _this3 = this;
+
+        if (this.els.length) {
+          this.windowHeight = window.innerHeight;
+
+          if (!this.hasScrollTicking) {
+            requestAnimationFrame(function () {
+              _this3.updateElements();
+            });
+            this.hasScrollTicking = true;
+          }
+        }
+      }
+    }, {
+      key: "addElements",
+      value: function addElements() {
+        var _this4 = this;
+
+        var els = this.el.querySelectorAll('[data-' + this.name + ']');
+        els.forEach(function (el, i) {
+          var cl = el.dataset[_this4.name + 'Class'] || _this4["class"];
+
+          var top = el.getBoundingClientRect().top + _this4.instance.scroll.y;
+
+          var bottom = top + el.offsetHeight;
+          var offset = parseInt(el.dataset[_this4.name + 'Offset']) || parseInt(_this4.offset);
+          var repeat = el.dataset[_this4.name + 'Repeat'];
+          var call = el.dataset[_this4.name + 'Call'];
+
+          if (repeat == 'false') {
+            repeat = false;
+          } else if (repeat != undefined) {
+            repeat = true;
+          } else {
+            repeat = _this4.repeat;
+          }
+
+          _this4.els[i] = {
+            el: el,
+            "class": cl,
+            top: top + offset,
+            bottom: bottom,
+            offset: offset,
+            repeat: repeat,
+            inView: false,
+            call: call
+          };
+        });
+      }
+    }, {
+      key: "updateElements",
+      value: function updateElements() {
+        var _this5 = this;
+
+        this.els.forEach(function (el, i) {
+          var top = el.el.getBoundingClientRect().top + _this5.instance.scroll.y;
+
+          var bottom = top + el.el.offsetHeight;
+          _this5.els[i].top = top + el.offset;
+          _this5.els[i].bottom = bottom;
+        });
+        this.hasScrollTicking = false;
+      }
+      /**
+       * Scroll to a desired target.
+       *
+       * @param  {object} options
+       * @return {void}
+       */
+
+    }, {
+      key: "scrollTo",
+      value: function scrollTo(targetOption, offsetOption) {
+        var target;
+        var offset = offsetOption ? parseInt(offsetOption) : 0;
+
+        if (typeof targetOption === 'string') {
+          if (targetOption === 'top') {
+            target = this.html;
+          } else if (targetOption === 'bottom') {
+            offset = this.html.offsetHeight - window.innerHeight;
+          } else {
+            target = document.querySelectorAll(targetOption)[0];
+          }
+        } else if (!targetOption.target) {
+          target = targetOption;
+        }
+
+        if (target) {
+          offset = target.getBoundingClientRect().top + offset;
+        }
+
+        offset += this.instance.scroll.y;
+        window.scrollTo({
+          top: offset,
+          behavior: 'smooth'
+        });
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.updateElements();
+      }
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        _get(_getPrototypeOf(_default.prototype), "destroy", this).call(this);
+
+        window.removeEventListener('scroll', this.checkScroll, false);
+      }
+    }]);
+
+    return _default;
+  }(_default);
+  /*
+  object-assign
+  (c) Sindre Sorhus
+  @license MIT
+  */
+
+  /* eslint-disable no-unused-vars */
+
+
+  var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+  var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+  function toObject(val) {
+    if (val === null || val === undefined) {
+      throw new TypeError('Object.assign cannot be called with null or undefined');
+    }
+
+    return Object(val);
+  }
+
+  function shouldUseNative() {
+    try {
+      if (!Object.assign) {
+        return false;
+      } // Detect buggy property enumeration order in older V8 versions.
+      // https://bugs.chromium.org/p/v8/issues/detail?id=4118
+
+
+      var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
+
+      test1[5] = 'de';
+
+      if (Object.getOwnPropertyNames(test1)[0] === '5') {
+        return false;
+      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
+
+
+      var test2 = {};
+
+      for (var i = 0; i < 10; i++) {
+        test2['_' + String.fromCharCode(i)] = i;
+      }
+
+      var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+        return test2[n];
+      });
+
+      if (order2.join('') !== '0123456789') {
+        return false;
+      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
+
+
+      var test3 = {};
+      'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+        test3[letter] = letter;
+      });
+
+      if (Object.keys(Object.assign({}, test3)).join('') !== 'abcdefghijklmnopqrst') {
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      // We don't expect any of the above to throw, but better to be safe.
+      return false;
+    }
+  }
+
+  var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+    var from;
+    var to = toObject(target);
+    var symbols;
+
+    for (var s = 1; s < arguments.length; s++) {
+      from = Object(arguments[s]);
+
+      for (var key in from) {
+        if (hasOwnProperty.call(from, key)) {
+          to[key] = from[key];
+        }
+      }
+
+      if (getOwnPropertySymbols) {
+        symbols = getOwnPropertySymbols(from);
+
+        for (var i = 0; i < symbols.length; i++) {
+          if (propIsEnumerable.call(from, symbols[i])) {
+            to[symbols[i]] = from[symbols[i]];
+          }
+        }
+      }
+    }
+
+    return to;
+  };
+
+  function E() {// Keep this empty so it's easier to inherit from
+    // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
+  }
+
+  E.prototype = {
+    on: function (name, callback, ctx) {
+      var e = this.e || (this.e = {});
+      (e[name] || (e[name] = [])).push({
+        fn: callback,
+        ctx: ctx
+      });
+      return this;
+    },
+    once: function (name, callback, ctx) {
+      var self = this;
+
+      function listener() {
+        self.off(name, listener);
+        callback.apply(ctx, arguments);
+      }
+
+      listener._ = callback;
+      return this.on(name, listener, ctx);
+    },
+    emit: function (name) {
+      var data = [].slice.call(arguments, 1);
+      var evtArr = ((this.e || (this.e = {}))[name] || []).slice();
+      var i = 0;
+      var len = evtArr.length;
+
+      for (i; i < len; i++) {
+        evtArr[i].fn.apply(evtArr[i].ctx, data);
+      }
+
+      return this;
+    },
+    off: function (name, callback) {
+      var e = this.e || (this.e = {});
+      var evts = e[name];
+      var liveEvents = [];
+
+      if (evts && callback) {
+        for (var i = 0, len = evts.length; i < len; i++) {
+          if (evts[i].fn !== callback && evts[i].fn._ !== callback) liveEvents.push(evts[i]);
+        }
+      } // Remove event from queue to prevent memory leak
+      // Suggested by https://github.com/lazd
+      // Ref: https://github.com/scottcorgan/tiny-emitter/commit/c6ebfaa9bc973b33d110a84a307742b7cf94c953#commitcomment-5024910
+
+
+      liveEvents.length ? e[name] = liveEvents : delete e[name];
+      return this;
+    }
+  };
+  var tinyEmitter = E;
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+    return module = {
+      exports: {}
+    }, fn(module, module.exports), module.exports;
+  }
+
+  var lethargy = createCommonjsModule(function (module, exports) {
+    // Generated by CoffeeScript 1.9.2
+    (function () {
+      var root;
+      root = exports !== null ? exports : this;
+
+      root.Lethargy = function () {
+        function Lethargy(stability, sensitivity, tolerance, delay) {
+          this.stability = stability != null ? Math.abs(stability) : 8;
+          this.sensitivity = sensitivity != null ? 1 + Math.abs(sensitivity) : 100;
+          this.tolerance = tolerance != null ? 1 + Math.abs(tolerance) : 1.1;
+          this.delay = delay != null ? delay : 150;
+
+          this.lastUpDeltas = function () {
+            var i, ref, results;
+            results = [];
+
+            for (i = 1, ref = this.stability * 2; 1 <= ref ? i <= ref : i >= ref; 1 <= ref ? i++ : i--) {
+              results.push(null);
+            }
+
+            return results;
+          }.call(this);
+
+          this.lastDownDeltas = function () {
+            var i, ref, results;
+            results = [];
+
+            for (i = 1, ref = this.stability * 2; 1 <= ref ? i <= ref : i >= ref; 1 <= ref ? i++ : i--) {
+              results.push(null);
+            }
+
+            return results;
+          }.call(this);
+
+          this.deltasTimestamp = function () {
+            var i, ref, results;
+            results = [];
+
+            for (i = 1, ref = this.stability * 2; 1 <= ref ? i <= ref : i >= ref; 1 <= ref ? i++ : i--) {
+              results.push(null);
+            }
+
+            return results;
+          }.call(this);
+        }
+
+        Lethargy.prototype.check = function (e) {
+          var lastDelta;
+          e = e.originalEvent || e;
+
+          if (e.wheelDelta != null) {
+            lastDelta = e.wheelDelta;
+          } else if (e.deltaY != null) {
+            lastDelta = e.deltaY * -40;
+          } else if (e.detail != null || e.detail === 0) {
+            lastDelta = e.detail * -40;
+          }
+
+          this.deltasTimestamp.push(Date.now());
+          this.deltasTimestamp.shift();
+
+          if (lastDelta > 0) {
+            this.lastUpDeltas.push(lastDelta);
+            this.lastUpDeltas.shift();
+            return this.isInertia(1);
+          } else {
+            this.lastDownDeltas.push(lastDelta);
+            this.lastDownDeltas.shift();
+            return this.isInertia(-1);
+          }
+
+          return false;
+        };
+
+        Lethargy.prototype.isInertia = function (direction) {
+          var lastDeltas, lastDeltasNew, lastDeltasOld, newAverage, newSum, oldAverage, oldSum;
+          lastDeltas = direction === -1 ? this.lastDownDeltas : this.lastUpDeltas;
+
+          if (lastDeltas[0] === null) {
+            return direction;
+          }
+
+          if (this.deltasTimestamp[this.stability * 2 - 2] + this.delay > Date.now() && lastDeltas[0] === lastDeltas[this.stability * 2 - 1]) {
+            return false;
+          }
+
+          lastDeltasOld = lastDeltas.slice(0, this.stability);
+          lastDeltasNew = lastDeltas.slice(this.stability, this.stability * 2);
+          oldSum = lastDeltasOld.reduce(function (t, s) {
+            return t + s;
+          });
+          newSum = lastDeltasNew.reduce(function (t, s) {
+            return t + s;
+          });
+          oldAverage = oldSum / lastDeltasOld.length;
+          newAverage = newSum / lastDeltasNew.length;
+
+          if (Math.abs(oldAverage) < Math.abs(newAverage * this.tolerance) && this.sensitivity < Math.abs(newAverage)) {
+            return direction;
+          } else {
+            return false;
+          }
+        };
+
+        Lethargy.prototype.showLastUpDeltas = function () {
+          return this.lastUpDeltas;
+        };
+
+        Lethargy.prototype.showLastDownDeltas = function () {
+          return this.lastDownDeltas;
+        };
+
+        return Lethargy;
+      }();
+    }).call(commonjsGlobal);
+  });
+
+  var support = function getSupport() {
+    return {
+      hasWheelEvent: 'onwheel' in document,
+      hasMouseWheelEvent: 'onmousewheel' in document,
+      hasTouch: 'ontouchstart' in document,
+      hasTouchWin: navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 1,
+      hasPointer: !!window.navigator.msPointerEnabled,
+      hasKeyDown: 'onkeydown' in document,
+      isFirefox: navigator.userAgent.indexOf('Firefox') > -1
+    };
+  }();
+
+  var toString = Object.prototype.toString,
+      hasOwnProperty$1 = Object.prototype.hasOwnProperty;
+
+  var bindallStandalone = function (object) {
+    if (!object) return console.warn('bindAll requires at least one argument.');
+    var functions = Array.prototype.slice.call(arguments, 1);
+
+    if (functions.length === 0) {
+      for (var method in object) {
+        if (hasOwnProperty$1.call(object, method)) {
+          if (typeof object[method] == 'function' && toString.call(object[method]) == "[object Function]") {
+            functions.push(method);
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < functions.length; i++) {
+      var f = functions[i];
+      object[f] = bind(object[f], object);
+    }
+  };
+  /*
+      Faster bind without specific-case checking. (see https://coderwall.com/p/oi3j3w).
+      bindAll is only needed for events binding so no need to make slow fixes for constructor
+      or partial application.
+  */
+
+
+  function bind(func, context) {
+    return function () {
+      return func.apply(context, arguments);
+    };
+  }
+
+  var Lethargy = lethargy.Lethargy;
+  var EVT_ID = 'virtualscroll';
+  var src = VirtualScroll;
+  var keyCodes = {
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40,
+    SPACE: 32
+  };
+
+  function VirtualScroll(options) {
+    bindallStandalone(this, '_onWheel', '_onMouseWheel', '_onTouchStart', '_onTouchMove', '_onKeyDown');
+    this.el = window;
+
+    if (options && options.el) {
+      this.el = options.el;
+      delete options.el;
+    }
+
+    this.options = objectAssign({
+      mouseMultiplier: 1,
+      touchMultiplier: 2,
+      firefoxMultiplier: 15,
+      keyStep: 120,
+      preventTouch: false,
+      unpreventTouchClass: 'vs-touchmove-allowed',
+      limitInertia: false,
+      useKeyboard: true,
+      useTouch: true
+    }, options);
+    if (this.options.limitInertia) this._lethargy = new Lethargy();
+    this._emitter = new tinyEmitter();
+    this._event = {
+      y: 0,
+      x: 0,
+      deltaX: 0,
+      deltaY: 0
+    };
+    this.touchStartX = null;
+    this.touchStartY = null;
+    this.bodyTouchAction = null;
+
+    if (this.options.passive !== undefined) {
+      this.listenerOptions = {
+        passive: this.options.passive
+      };
+    }
+  }
+
+  VirtualScroll.prototype._notify = function (e) {
+    var evt = this._event;
+    evt.x += evt.deltaX;
+    evt.y += evt.deltaY;
+
+    this._emitter.emit(EVT_ID, {
+      x: evt.x,
+      y: evt.y,
+      deltaX: evt.deltaX,
+      deltaY: evt.deltaY,
+      originalEvent: e
+    });
+  };
+
+  VirtualScroll.prototype._onWheel = function (e) {
+    var options = this.options;
+    if (this._lethargy && this._lethargy.check(e) === false) return;
+    var evt = this._event; // In Chrome and in Firefox (at least the new one)
+
+    evt.deltaX = e.wheelDeltaX || e.deltaX * -1;
+    evt.deltaY = e.wheelDeltaY || e.deltaY * -1; // for our purpose deltamode = 1 means user is on a wheel mouse, not touch pad
+    // real meaning: https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent#Delta_modes
+
+    if (support.isFirefox && e.deltaMode == 1) {
+      evt.deltaX *= options.firefoxMultiplier;
+      evt.deltaY *= options.firefoxMultiplier;
+    }
+
+    evt.deltaX *= options.mouseMultiplier;
+    evt.deltaY *= options.mouseMultiplier;
+
+    this._notify(e);
+  };
+
+  VirtualScroll.prototype._onMouseWheel = function (e) {
+    if (this.options.limitInertia && this._lethargy.check(e) === false) return;
+    var evt = this._event; // In Safari, IE and in Chrome if 'wheel' isn't defined
+
+    evt.deltaX = e.wheelDeltaX ? e.wheelDeltaX : 0;
+    evt.deltaY = e.wheelDeltaY ? e.wheelDeltaY : e.wheelDelta;
+
+    this._notify(e);
+  };
+
+  VirtualScroll.prototype._onTouchStart = function (e) {
+    var t = e.targetTouches ? e.targetTouches[0] : e;
+    this.touchStartX = t.pageX;
+    this.touchStartY = t.pageY;
+  };
+
+  VirtualScroll.prototype._onTouchMove = function (e) {
+    var options = this.options;
+
+    if (options.preventTouch && !e.target.classList.contains(options.unpreventTouchClass)) {
+      e.preventDefault();
+    }
+
+    var evt = this._event;
+    var t = e.targetTouches ? e.targetTouches[0] : e;
+    evt.deltaX = (t.pageX - this.touchStartX) * options.touchMultiplier;
+    evt.deltaY = (t.pageY - this.touchStartY) * options.touchMultiplier;
+    this.touchStartX = t.pageX;
+    this.touchStartY = t.pageY;
+
+    this._notify(e);
+  };
+
+  VirtualScroll.prototype._onKeyDown = function (e) {
+    var evt = this._event;
+    evt.deltaX = evt.deltaY = 0;
+    var windowHeight = window.innerHeight - 40;
+
+    switch (e.keyCode) {
+      case keyCodes.LEFT:
+      case keyCodes.UP:
+        evt.deltaY = this.options.keyStep;
+        break;
+
+      case keyCodes.RIGHT:
+      case keyCodes.DOWN:
+        evt.deltaY = -this.options.keyStep;
+        break;
+
+      case e.shiftKey:
+        evt.deltaY = windowHeight;
+        break;
+
+      case keyCodes.SPACE:
+        evt.deltaY = -windowHeight;
+        break;
+
+      default:
+        return;
+    }
+
+    this._notify(e);
+  };
+
+  VirtualScroll.prototype._bind = function () {
+    if (support.hasWheelEvent) this.el.addEventListener('wheel', this._onWheel, this.listenerOptions);
+    if (support.hasMouseWheelEvent) this.el.addEventListener('mousewheel', this._onMouseWheel, this.listenerOptions);
+
+    if (support.hasTouch && this.options.useTouch) {
+      this.el.addEventListener('touchstart', this._onTouchStart, this.listenerOptions);
+      this.el.addEventListener('touchmove', this._onTouchMove, this.listenerOptions);
+    }
+
+    if (support.hasPointer && support.hasTouchWin) {
+      this.bodyTouchAction = document.body.style.msTouchAction;
+      document.body.style.msTouchAction = 'none';
+      this.el.addEventListener('MSPointerDown', this._onTouchStart, true);
+      this.el.addEventListener('MSPointerMove', this._onTouchMove, true);
+    }
+
+    if (support.hasKeyDown && this.options.useKeyboard) document.addEventListener('keydown', this._onKeyDown);
+  };
+
+  VirtualScroll.prototype._unbind = function () {
+    if (support.hasWheelEvent) this.el.removeEventListener('wheel', this._onWheel);
+    if (support.hasMouseWheelEvent) this.el.removeEventListener('mousewheel', this._onMouseWheel);
+
+    if (support.hasTouch) {
+      this.el.removeEventListener('touchstart', this._onTouchStart);
+      this.el.removeEventListener('touchmove', this._onTouchMove);
+    }
+
+    if (support.hasPointer && support.hasTouchWin) {
+      document.body.style.msTouchAction = this.bodyTouchAction;
+      this.el.removeEventListener('MSPointerDown', this._onTouchStart, true);
+      this.el.removeEventListener('MSPointerMove', this._onTouchMove, true);
+    }
+
+    if (support.hasKeyDown && this.options.useKeyboard) document.removeEventListener('keydown', this._onKeyDown);
+  };
+
+  VirtualScroll.prototype.on = function (cb, ctx) {
+    this._emitter.on(EVT_ID, cb, ctx);
+
+    var events = this._emitter.e;
+    if (events && events[EVT_ID] && events[EVT_ID].length === 1) this._bind();
+  };
+
+  VirtualScroll.prototype.off = function (cb, ctx) {
+    this._emitter.off(EVT_ID, cb, ctx);
+
+    var events = this._emitter.e;
+    if (!events[EVT_ID] || events[EVT_ID].length <= 0) this._unbind();
+  };
+
+  VirtualScroll.prototype.reset = function () {
+    var evt = this._event;
+    evt.x = 0;
+    evt.y = 0;
+  };
+
+  VirtualScroll.prototype.destroy = function () {
+    this._emitter.off();
+
+    this._unbind();
+  };
+
+  function lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end;
+  }
+
+  function getTranslate(el) {
+    var translate = {};
+    if (!window.getComputedStyle) return;
+    var style = getComputedStyle(el);
+    var transform = style.transform || style.webkitTransform || style.mozTransform;
+    var mat = transform.match(/^matrix3d\((.+)\)$/);
+    if (mat) return parseFloat(mat[1].split(', ')[13]);
+    mat = transform.match(/^matrix\((.+)\)$/);
+    translate.x = mat ? parseFloat(mat[1].split(', ')[4]) : 0;
+    translate.y = mat ? parseFloat(mat[1].split(', ')[5]) : 0;
+    return translate;
+  }
+  /**
+   * Returns an array containing all the parent nodes of the given node
+   * @param  {object} node
+   * @return {array} parent nodes
+   */
+
+
+  function getParents(elem) {
+    // Set up a parent array
+    var parents = []; // Push each parent element to the array
+
+    for (; elem && elem !== document; elem = elem.parentNode) {
+      parents.push(elem);
+    } // Return our parent array
+
+
+    return parents;
+  } // https://gomakethings.com/how-to-get-the-closest-parent-element-with-a-matching-selector-using-vanilla-javascript/
+
+
+  var keyCodes$1 = {
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40,
+    SPACE: 32,
+    TAB: 9
+  };
+
+  var _default$2 =
+  /*#__PURE__*/
+  function (_Core) {
+    _inherits(_default, _Core);
+
+    function _default() {
+      var _this;
+
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      _classCallCheck(this, _default);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(_default).call(this, options));
+      _this.inertia = _this.inertia * 0.1;
+      _this.isScrolling = false;
+      _this.isDraggingScrollbar = false;
+      _this.isTicking = false;
+      _this.hasScrollTicking = false;
+      _this.parallaxElements = [];
+      _this.inertiaRatio = 1;
+      _this.stop = false;
+      _this.checkKey = _this.checkKey.bind(_assertThisInitialized(_this));
+      window.addEventListener('keydown', _this.checkKey, false);
+      return _this;
+    }
+
+    _createClass(_default, [{
+      key: "init",
+      value: function init() {
+        var _this2 = this;
+
+        this.html.classList.add(this.smoothClass);
+        this.instance = _objectSpread2({
+          delta: {
+            x: 0,
+            y: 0
+          }
+        }, this.instance);
+        this.vs = new src({
+          el: this.el,
+          mouseMultiplier: navigator.platform.indexOf('Win') > -1 ? 1 : 0.4,
+          touchMultiplier: 4,
+          firefoxMultiplier: 30,
+          useKeyboard: false,
+          passive: true
+        });
+        this.vs.on(function (e) {
+          if (_this2.stop) {
+            return;
+          }
+
+          if (!_this2.isTicking && !_this2.isDraggingScrollbar) {
+            requestAnimationFrame(function () {
+              if (!_this2.isScrolling) _this2.startScrolling();
+
+              _this2.updateDelta(e);
+            });
+            _this2.isTicking = true;
+          }
+
+          _this2.isTicking = false;
+        });
+        this.setScrollLimit();
+        this.initScrollBar();
+        this.addSections();
+        this.addElements();
+        this.detectElements();
+        this.transformElements(true);
+
+        _get(_getPrototypeOf(_default.prototype), "init", this).call(this);
+      }
+    }, {
+      key: "setScrollLimit",
+      value: function setScrollLimit() {
+        this.instance.limit = this.el.offsetHeight - this.windowHeight;
+      }
+    }, {
+      key: "startScrolling",
+      value: function startScrolling() {
+        this.isScrolling = true;
+        this.checkScroll();
+        this.html.classList.add(this.scrollingClass);
+      }
+    }, {
+      key: "stopScrolling",
+      value: function stopScrolling() {
+        this.isScrolling = false;
+        this.inertiaRatio = 1;
+        this.instance.scroll.y = Math.round(this.instance.scroll.y);
+        this.html.classList.remove(this.scrollingClass);
+      }
+    }, {
+      key: "checkKey",
+      value: function checkKey(e) {
+        var _this3 = this;
+
+        switch (e.keyCode) {
+          case keyCodes$1.TAB:
+            setTimeout(function () {
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+
+              if (!(document.activeElement instanceof HTMLBodyElement)) {
+                _this3.scrollTo(document.activeElement, -window.innerHeight / 2);
+              }
+            }, 0);
+            break;
+
+          case keyCodes$1.UP:
+            this.instance.delta.y -= 240;
+            break;
+
+          case keyCodes$1.DOWN:
+            this.instance.delta.y += 240;
+            break;
+
+          case keyCodes$1.SPACE:
+            if (!(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement)) {
+              if (e.shiftKey) {
+                this.instance.delta.y -= window.innerHeight;
+              } else {
+                this.instance.delta.y += window.innerHeight;
+              }
+            }
+
+            break;
+
+          default:
+            return;
+        }
+
+        if (this.instance.delta.y < 0) this.instance.delta.y = 0;
+        if (this.instance.delta.y > this.instance.limit) this.instance.delta.y = this.instance.limit;
+        this.isScrolling = true;
+        this.checkScroll();
+        this.html.classList.add(this.scrollingClass);
+      }
+    }, {
+      key: "checkScroll",
+      value: function checkScroll() {
+        var _this4 = this;
+
+        if (this.isScrolling || this.isDraggingScrollbar) {
+          if (!this.hasScrollTicking) {
+            requestAnimationFrame(function () {
+              return _this4.checkScroll();
+            });
+            this.hasScrollTicking = true;
+          }
+
+          var distance = Math.abs(this.instance.delta.y - this.instance.scroll.y);
+
+          if (distance < 0.5 && this.instance.delta.y != 0 || distance < 0.5 && this.instance.delta.y == 0) {
+            this.stopScrolling();
+          }
+
+          this.updateScroll();
+
+          for (var i = this.sections.length - 1; i >= 0; i--) {
+            if (this.sections[i].persistent || this.instance.scroll.y > this.sections[i].offset && this.instance.scroll.y < this.sections[i].limit) {
+              this.transform(this.sections[i].el, 0, -this.instance.scroll.y);
+              this.sections[i].el.style.visibility = 'visible';
+              this.sections[i].inView = true;
+            } else {
+              this.sections[i].el.style.visibility = 'hidden';
+              this.sections[i].inView = false;
+              this.transform(this.sections[i].el, 0, 0);
+            }
+          }
+
+          if (this.getDirection) {
+            this.addDirection();
+          }
+
+          if (this.getSpeed) {
+            this.addSpeed();
+            this.timestamp = Date.now();
+          }
+
+          this.detectElements();
+          this.transformElements();
+          var scrollBarTranslation = this.instance.scroll.y / this.instance.limit * this.scrollBarLimit;
+          this.transform(this.scrollbarThumb, 0, scrollBarTranslation);
+
+          _get(_getPrototypeOf(_default.prototype), "checkScroll", this).call(this);
+
+          this.hasScrollTicking = false;
+        }
+      }
+    }, {
+      key: "checkResize",
+      value: function checkResize() {
+        this.windowHeight = window.innerHeight;
+        this.windowMiddle = this.windowHeight / 2;
+        this.update();
+      }
+    }, {
+      key: "updateDelta",
+      value: function updateDelta(e) {
+        this.instance.delta.y -= e.deltaY;
+        if (this.instance.delta.y < 0) this.instance.delta.y = 0;
+        if (this.instance.delta.y > this.instance.limit) this.instance.delta.y = this.instance.limit;
+      }
+    }, {
+      key: "updateScroll",
+      value: function updateScroll(e) {
+        if (this.isScrolling || this.isDraggingScrollbar) {
+          this.instance.scroll.y = lerp(this.instance.scroll.y, this.instance.delta.y, this.inertia * this.inertiaRatio);
+        } else {
+          this.instance.scroll.y = this.instance.delta.y;
+        }
+      }
+    }, {
+      key: "addDirection",
+      value: function addDirection() {
+        if (this.instance.delta.y > this.instance.scroll.y) {
+          if (this.instance.direction !== 'down') {
+            this.instance.direction = 'down';
+          }
+        } else if (this.instance.delta.y < this.instance.scroll.y) {
+          if (this.instance.direction !== 'up') {
+            this.instance.direction = 'up';
+          }
+        }
+      }
+    }, {
+      key: "addSpeed",
+      value: function addSpeed() {
+        if (this.instance.delta.y != this.instance.scroll.y) {
+          this.instance.speed = (this.instance.delta.y - this.instance.scroll.y) / (Date.now() - this.timestamp);
+        } else {
+          this.instance.speed = 0;
+        }
+      }
+    }, {
+      key: "initScrollBar",
+      value: function initScrollBar() {
+        this.scrollbar = document.createElement('span');
+        this.scrollbarThumb = document.createElement('span');
+        this.scrollbar.classList.add("".concat(this.scrollbarClass));
+        this.scrollbarThumb.classList.add("".concat(this.scrollbarClass, "_thumb"));
+        this.scrollbar.append(this.scrollbarThumb);
+        document.body.append(this.scrollbar);
+        this.scrollbarThumb.style.height = "".concat(window.innerHeight * window.innerHeight / (this.instance.limit + window.innerHeight), "px");
+        this.scrollBarLimit = window.innerHeight - this.scrollbarThumb.getBoundingClientRect().height;
+        this.getScrollBar = this.getScrollBar.bind(this);
+        this.releaseScrollBar = this.releaseScrollBar.bind(this);
+        this.moveScrollBar = this.moveScrollBar.bind(this);
+        this.scrollbarThumb.addEventListener('mousedown', this.getScrollBar);
+        window.addEventListener('mouseup', this.releaseScrollBar);
+        window.addEventListener('mousemove', this.moveScrollBar);
+      }
+    }, {
+      key: "reinitScrollBar",
+      value: function reinitScrollBar() {
+        this.scrollbarThumb.style.height = "".concat(window.innerHeight * window.innerHeight / this.instance.limit, "px");
+        this.scrollBarLimit = window.innerHeight - this.scrollbarThumb.getBoundingClientRect().height;
+      }
+    }, {
+      key: "destroyScrollBar",
+      value: function destroyScrollBar() {
+        this.scrollbarThumb.removeEventListener('mousedown', this.getScrollBar);
+        window.removeEventListener('mouseup', this.releaseScrollBar);
+        window.removeEventListener('mousemove', this.moveScrollBar);
+        this.scrollbar.remove();
+      }
+    }, {
+      key: "getScrollBar",
+      value: function getScrollBar(e) {
+        this.isDraggingScrollbar = true;
+        this.checkScroll();
+        this.html.classList.remove(this.scrollingClass);
+        this.html.classList.add(this.draggingClass);
+      }
+    }, {
+      key: "releaseScrollBar",
+      value: function releaseScrollBar(e) {
+        this.isDraggingScrollbar = false;
+        this.html.classList.add(this.scrollingClass);
+        this.html.classList.remove(this.draggingClass);
+      }
+    }, {
+      key: "moveScrollBar",
+      value: function moveScrollBar(e) {
+        var _this5 = this;
+
+        if (!this.isTicking && this.isDraggingScrollbar) {
+          requestAnimationFrame(function () {
+            var y = e.clientY * 100 / window.innerHeight * _this5.instance.limit / 100;
+
+            if (y > 0 && y < _this5.instance.limit) {
+              _this5.instance.delta.y = y;
+            }
+          });
+          this.isTicking = true;
+        }
+
+        this.isTicking = false;
+      }
+    }, {
+      key: "addElements",
+      value: function addElements() {
+        var _this6 = this;
+
+        this.els = [];
+        this.parallaxElements = [];
+        var count = 0;
+        this.sections.forEach(function (section, y) {
+          var els = _this6.sections[y].el.querySelectorAll("[data-".concat(_this6.name, "]"));
+
+          els.forEach(function (el, i) {
+            var cl = el.dataset[_this6.name + 'Class'] || _this6["class"];
+            var top;
+            var repeat = el.dataset[_this6.name + 'Repeat'];
+            var call = el.dataset[_this6.name + 'Call'];
+            var position = el.dataset[_this6.name + 'Position'];
+            var delay = el.dataset[_this6.name + 'Delay'];
+            var direction = el.dataset[_this6.name + 'Direction'];
+            var sticky = typeof el.dataset[_this6.name + 'Sticky'] === 'string';
+            var speed = el.dataset[_this6.name + 'Speed'] ? parseFloat(el.dataset[_this6.name + 'Speed']) / 10 : false;
+            var offset = typeof el.dataset[_this6.name + 'Offset'] === 'string' ? el.dataset[_this6.name + 'Offset'].split(',') : false;
+            var target = el.dataset[_this6.name + 'Target'];
+            var targetEl;
+
+            if (target !== undefined) {
+              targetEl = document.querySelector("".concat(target));
+            } else {
+              targetEl = el;
+            }
+
+            if (!_this6.sections[y].inView) {
+              top = targetEl.getBoundingClientRect().top - getTranslate(_this6.sections[y].el).y - getTranslate(targetEl).y;
+            } else {
+              top = targetEl.getBoundingClientRect().top + _this6.instance.scroll.y - getTranslate(targetEl).y;
+            }
+
+            var bottom = top + targetEl.offsetHeight;
+            var middle = (bottom - top) / 2 + top;
+
+            if (sticky) {
+              var elDistance = el.getBoundingClientRect().top - top;
+              top += window.innerHeight;
+              bottom = top + targetEl.offsetHeight - window.innerHeight - el.offsetHeight - elDistance;
+              middle = (bottom - top) / 2 + top;
+            }
+
+            if (repeat == 'false') {
+              repeat = false;
+            } else if (repeat != undefined) {
+              repeat = true;
+            } else {
+              repeat = _this6.repeat;
+            }
+
+            var relativeOffset = [0, 0];
+
+            if (offset) {
+              for (var i = 0; i < offset.length; i++) {
+                if (offset[i].includes('%')) {
+                  relativeOffset[i] = parseInt(offset[i].replace('%', '') * _this6.windowHeight / 100);
+                } else {
+                  relativeOffset[i] = parseInt(offset[i]);
+                }
+              }
+            }
+
+            var mappedEl = {
+              el: el,
+              id: count,
+              "class": cl,
+              top: top + relativeOffset[0],
+              middle: middle,
+              bottom: bottom - relativeOffset[1],
+              offset: offset,
+              repeat: repeat,
+              inView: false,
+              call: call,
+              speed: speed,
+              delay: delay,
+              position: position,
+              target: targetEl,
+              direction: direction,
+              sticky: sticky
+            };
+            count++;
+
+            _this6.els.push(mappedEl);
+
+            if (speed !== false || sticky) {
+              _this6.parallaxElements.push(mappedEl);
+            }
+          });
+        });
+      }
+    }, {
+      key: "addSections",
+      value: function addSections() {
+        var _this7 = this;
+
+        this.sections = [];
+        var sections = this.el.querySelectorAll("[data-".concat(this.name, "-section]"));
+
+        if (sections.length === 0) {
+          sections = [this.el];
+        }
+
+        sections.forEach(function (section, i) {
+          var offset = section.getBoundingClientRect().top - window.innerHeight * 1.5 - getTranslate(section).y;
+          var limit = offset + section.getBoundingClientRect().height + window.innerHeight * 2;
+          var persistent = typeof section.dataset[_this7.name + 'Persistent'] === 'string';
+          var inView = false;
+
+          if (_this7.instance.scroll.y >= offset && _this7.instance.scroll.y <= limit) {
+            inView = true;
+          }
+
+          var mappedSection = {
+            el: section,
+            offset: offset,
+            limit: limit,
+            inView: inView,
+            persistent: persistent
+          };
+          _this7.sections[i] = mappedSection;
+        });
+      }
+    }, {
+      key: "transform",
+      value: function transform(element, x, y, delay) {
+        var transform;
+
+        if (!delay) {
+          transform = "matrix(1,0,0,1,".concat(x, ",").concat(y, ")");
+        } else {
+          var start = getTranslate(element);
+          var lerpX = lerp(start.x, x, delay);
+          var lerpY = lerp(start.y, y, delay);
+          transform = "matrix(1,0,0,1,".concat(lerpX, ",").concat(lerpY, ")");
+        }
+
+        element.style.webkitTransform = transform;
+        element.style.msTransform = transform;
+        element.style.transform = transform;
+      }
+    }, {
+      key: "transformElements",
+      value: function transformElements(isForced) {
+        var _this8 = this;
+
+        var scrollBottom = this.instance.scroll.y + this.windowHeight;
+        var scrollMiddle = this.instance.scroll.y + this.windowMiddle;
+        this.parallaxElements.forEach(function (current, i) {
+          var transformDistance = false;
+
+          if (isForced) {
+            transformDistance = 0;
+          }
+
+          if (current.inView) {
+            switch (current.position) {
+              case 'top':
+                transformDistance = _this8.instance.scroll.y * -current.speed;
+                break;
+
+              case 'elementTop':
+                transformDistance = (scrollBottom - current.top) * -current.speed;
+                break;
+
+              case 'bottom':
+                transformDistance = (_this8.instance.limit - scrollBottom + _this8.windowHeight) * current.speed;
+                break;
+
+              default:
+                transformDistance = (scrollMiddle - current.middle) * -current.speed;
+                break;
+            }
+          }
+
+          if (current.sticky) {
+            if (current.inView) {
+              transformDistance = _this8.instance.scroll.y - current.top + window.innerHeight;
+            } else {
+              if (_this8.instance.scroll.y < current.top - window.innerHeight && _this8.instance.scroll.y < current.top - window.innerHeight / 2) {
+                transformDistance = 0;
+              } else if (_this8.instance.scroll.y > current.bottom && _this8.instance.scroll.y > current.bottom + 100) {
+                transformDistance = current.bottom - current.top + window.innerHeight;
+              } else {
+                transformDistance = false;
+              }
+            }
+          }
+
+          if (transformDistance !== false) {
+            if (current.direction === 'horizontal') {
+              _this8.transform(current.el, transformDistance, 0, isForced ? false : current.delay);
+            } else {
+              _this8.transform(current.el, 0, transformDistance, isForced ? false : current.delay);
+            }
+          }
+        });
+      }
+      /**
+       * Scroll to a desired target.
+       *
+       * @param  {object} options
+       *      Available options :
+       *          {node, string, "top", "bottom"} targetOption - The DOM element we want to scroll to
+       *          {int} offsetOption - An absolute vertical scroll value to reach, or an offset to apply on top of given `target` or `sourceElem`'s target
+       *          {boolean} toBottom - Set to true to scroll all the way to the bottom
+       * @return {void}
+       */
+
+    }, {
+      key: "scrollTo",
+      value: function scrollTo(targetOption, offsetOption) {
+        var _this9 = this;
+
+        var target;
+        var offset = offsetOption ? parseInt(offsetOption) : 0;
+
+        if (typeof targetOption === 'string') {
+          if (targetOption === 'top') {
+            offset = 0;
+          } else if (targetOption === 'bottom') {
+            offset = this.instance.limit;
+          } else {
+            target = document.querySelectorAll(targetOption)[0];
+          }
+        } else if (!targetOption.target) {
+          target = targetOption;
+        } // We have a target, get it's coordinates
+
+
+        if (target) {
+          // Get target offset from top
+          var targetBCR = target.getBoundingClientRect();
+          var offsetTop = targetBCR.top + this.instance.scroll.y; // Try and find the target's parent section
+
+          var targetParents = getParents(target);
+          var parentSection = targetParents.find(function (candidate) {
+            return _this9.sections.find(function (section) {
+              return section.el == candidate;
+            });
+          });
+          var parentSectionOffset = 0;
+
+          if (parentSection) {
+            parentSectionOffset = getTranslate(parentSection).y; // We got a parent section, store it's current offset to remove it later
+          } // Final value of scroll destination : offsetTop + (optional offset given in options) - (parent's section translate)
+
+
+          offset = offsetTop + offset - parentSectionOffset;
+        }
+
+        offset -= this.instance.scroll.y;
+        this.instance.delta.y = Math.min(offset, this.instance.limit); // Actual scrollTo (the lerp will do the animation itself)
+
+        this.inertiaRatio = Math.min(4000 / Math.abs(this.instance.delta.y - this.instance.scroll.y), 0.8); // Update the scroll. If we were in idle state: we're not anymore
+
+        this.isScrolling = true;
+        this.checkScroll();
+        this.html.classList.add(this.scrollingClass);
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.setScrollLimit();
+        this.addSections();
+        this.addElements();
+        this.detectElements();
+        this.updateScroll();
+        this.transformElements(true);
+      }
+    }, {
+      key: "startScroll",
+      value: function startScroll() {
+        this.stop = false;
+      }
+    }, {
+      key: "stopScroll",
+      value: function stopScroll() {
+        this.stop = true;
+      }
+    }, {
+      key: "setScroll",
+      value: function setScroll(x, y) {
+        this.instance = {
+          scroll: {
+            x: x,
+            y: y
+          },
+          delta: {
+            x: x,
+            y: y
+          }
+        };
+      }
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        _get(_getPrototypeOf(_default.prototype), "destroy", this).call(this);
+
+        this.stopScrolling();
+        this.html.classList.remove(this.smoothClass);
+        this.vs.destroy();
+        this.destroyScrollBar();
+        window.removeEventListener('keydown', this.checkKey, false);
+      }
+    }]);
+
+    return _default;
+  }(_default);
+
+  var _default$3 =
+  /*#__PURE__*/
+  function () {
+    function _default() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      _classCallCheck(this, _default);
+
+      this.options = options;
+      Object.assign(this, defaults, options);
+      this.init();
+    }
+
+    _createClass(_default, [{
+      key: "init",
+      value: function init() {
+        if (!this.smoothMobile) {
+          this.isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        if (this.smooth === true && !this.isMobile) {
+          this.scroll = new _default$2(this.options);
+        } else {
+          this.scroll = new _default$1(this.options);
+        }
+
+        this.scroll.init();
+
+        if (window.location.hash) {
+          this.scroll.scrollTo(window.location.hash);
+        }
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.scroll.update();
+      }
+    }, {
+      key: "start",
+      value: function start() {
+        this.scroll.startScroll();
+      }
+    }, {
+      key: "stop",
+      value: function stop() {
+        this.scroll.stopScroll();
+      }
+    }, {
+      key: "scrollTo",
+      value: function scrollTo(target, offset) {
+        this.scroll.scrollTo(target, offset);
+      }
+    }, {
+      key: "setScroll",
+      value: function setScroll(x, y) {
+        this.scroll.setScroll(x, y);
+      }
+    }, {
+      key: "on",
+      value: function on(event, func) {
+        this.scroll.setEvents(event, func);
+      }
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        this.scroll.destroy();
+      }
+    }]);
+
+    return _default;
+  }();
+
+  return _default$3;
+});
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -218,7 +2029,7 @@ var config_1 = require("./internal/config");
 
 exports.config = config_1.config;
 
-},{"./internal/AsyncSubject":2,"./internal/BehaviorSubject":3,"./internal/Notification":5,"./internal/Observable":6,"./internal/ReplaySubject":9,"./internal/Scheduler":10,"./internal/Subject":11,"./internal/Subscriber":13,"./internal/Subscription":14,"./internal/config":15,"./internal/observable/ConnectableObservable":16,"./internal/observable/bindCallback":18,"./internal/observable/bindNodeCallback":19,"./internal/observable/combineLatest":20,"./internal/observable/concat":21,"./internal/observable/defer":22,"./internal/observable/empty":23,"./internal/observable/forkJoin":24,"./internal/observable/from":25,"./internal/observable/fromEvent":27,"./internal/observable/fromEventPattern":28,"./internal/observable/generate":32,"./internal/observable/iif":33,"./internal/observable/interval":34,"./internal/observable/merge":35,"./internal/observable/never":36,"./internal/observable/of":37,"./internal/observable/onErrorResumeNext":38,"./internal/observable/pairs":39,"./internal/observable/race":40,"./internal/observable/range":41,"./internal/observable/throwError":43,"./internal/observable/timer":44,"./internal/observable/using":45,"./internal/observable/zip":46,"./internal/operators/groupBy":82,"./internal/scheduler/VirtualTimeScheduler":159,"./internal/scheduler/animationFrame":160,"./internal/scheduler/asap":161,"./internal/scheduler/async":162,"./internal/scheduler/queue":163,"./internal/symbol/observable":165,"./internal/util/ArgumentOutOfRangeError":167,"./internal/util/EmptyError":168,"./internal/util/ObjectUnsubscribedError":170,"./internal/util/TimeoutError":171,"./internal/util/UnsubscriptionError":172,"./internal/util/identity":175,"./internal/util/isObservable":184,"./internal/util/noop":187,"./internal/util/pipe":189}],2:[function(require,module,exports){
+},{"./internal/AsyncSubject":3,"./internal/BehaviorSubject":4,"./internal/Notification":6,"./internal/Observable":7,"./internal/ReplaySubject":10,"./internal/Scheduler":11,"./internal/Subject":12,"./internal/Subscriber":14,"./internal/Subscription":15,"./internal/config":16,"./internal/observable/ConnectableObservable":17,"./internal/observable/bindCallback":19,"./internal/observable/bindNodeCallback":20,"./internal/observable/combineLatest":21,"./internal/observable/concat":22,"./internal/observable/defer":23,"./internal/observable/empty":24,"./internal/observable/forkJoin":25,"./internal/observable/from":26,"./internal/observable/fromEvent":28,"./internal/observable/fromEventPattern":29,"./internal/observable/generate":33,"./internal/observable/iif":34,"./internal/observable/interval":35,"./internal/observable/merge":36,"./internal/observable/never":37,"./internal/observable/of":38,"./internal/observable/onErrorResumeNext":39,"./internal/observable/pairs":40,"./internal/observable/race":41,"./internal/observable/range":42,"./internal/observable/throwError":44,"./internal/observable/timer":45,"./internal/observable/using":46,"./internal/observable/zip":47,"./internal/operators/groupBy":83,"./internal/scheduler/VirtualTimeScheduler":160,"./internal/scheduler/animationFrame":161,"./internal/scheduler/asap":162,"./internal/scheduler/async":163,"./internal/scheduler/queue":164,"./internal/symbol/observable":166,"./internal/util/ArgumentOutOfRangeError":168,"./internal/util/EmptyError":169,"./internal/util/ObjectUnsubscribedError":171,"./internal/util/TimeoutError":172,"./internal/util/UnsubscriptionError":173,"./internal/util/identity":176,"./internal/util/isObservable":185,"./internal/util/noop":188,"./internal/util/pipe":190}],3:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -306,7 +2117,7 @@ var AsyncSubject = function (_super) {
 
 exports.AsyncSubject = AsyncSubject;
 
-},{"./Subject":11,"./Subscription":14}],3:[function(require,module,exports){
+},{"./Subject":12,"./Subscription":15}],4:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -388,7 +2199,7 @@ var BehaviorSubject = function (_super) {
 
 exports.BehaviorSubject = BehaviorSubject;
 
-},{"./Subject":11,"./util/ObjectUnsubscribedError":170}],4:[function(require,module,exports){
+},{"./Subject":12,"./util/ObjectUnsubscribedError":171}],5:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -453,7 +2264,7 @@ var InnerSubscriber = function (_super) {
 
 exports.InnerSubscriber = InnerSubscriber;
 
-},{"./Subscriber":13}],5:[function(require,module,exports){
+},{"./Subscriber":14}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -558,7 +2369,7 @@ var Notification = function () {
 
 exports.Notification = Notification;
 
-},{"./observable/empty":23,"./observable/of":37,"./observable/throwError":43}],6:[function(require,module,exports){
+},{"./observable/empty":24,"./observable/of":38,"./observable/throwError":44}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -712,7 +2523,7 @@ function getPromiseCtor(promiseCtor) {
   return promiseCtor;
 }
 
-},{"../internal/symbol/observable":165,"./config":15,"./util/canReportError":173,"./util/pipe":189,"./util/toSubscriber":196}],7:[function(require,module,exports){
+},{"../internal/symbol/observable":166,"./config":16,"./util/canReportError":174,"./util/pipe":190,"./util/toSubscriber":197}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -736,7 +2547,7 @@ exports.empty = {
   complete: function () {}
 };
 
-},{"./config":15,"./util/hostReportError":174}],8:[function(require,module,exports){
+},{"./config":16,"./util/hostReportError":175}],9:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -793,7 +2604,7 @@ var OuterSubscriber = function (_super) {
 
 exports.OuterSubscriber = OuterSubscriber;
 
-},{"./Subscriber":13}],9:[function(require,module,exports){
+},{"./Subscriber":14}],10:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -973,7 +2784,7 @@ var ReplayEvent = function () {
   return ReplayEvent;
 }();
 
-},{"./Subject":11,"./SubjectSubscription":12,"./Subscription":14,"./operators/observeOn":97,"./scheduler/queue":163,"./util/ObjectUnsubscribedError":170}],10:[function(require,module,exports){
+},{"./Subject":12,"./SubjectSubscription":13,"./Subscription":15,"./operators/observeOn":98,"./scheduler/queue":164,"./util/ObjectUnsubscribedError":171}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1007,7 +2818,7 @@ var Scheduler = function () {
 
 exports.Scheduler = Scheduler;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -1235,7 +3046,7 @@ var AnonymousSubject = function (_super) {
 
 exports.AnonymousSubject = AnonymousSubject;
 
-},{"../internal/symbol/rxSubscriber":166,"./Observable":6,"./SubjectSubscription":12,"./Subscriber":13,"./Subscription":14,"./util/ObjectUnsubscribedError":170}],12:[function(require,module,exports){
+},{"../internal/symbol/rxSubscriber":167,"./Observable":7,"./SubjectSubscription":13,"./Subscriber":14,"./Subscription":15,"./util/ObjectUnsubscribedError":171}],13:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -1306,7 +3117,7 @@ var SubjectSubscription = function (_super) {
 
 exports.SubjectSubscription = SubjectSubscription;
 
-},{"./Subscription":14}],13:[function(require,module,exports){
+},{"./Subscription":15}],14:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -1626,7 +3437,7 @@ var SafeSubscriber = function (_super) {
 
 exports.SafeSubscriber = SafeSubscriber;
 
-},{"../internal/symbol/rxSubscriber":166,"./Observer":7,"./Subscription":14,"./config":15,"./util/hostReportError":174,"./util/isFunction":179}],14:[function(require,module,exports){
+},{"../internal/symbol/rxSubscriber":167,"./Observer":8,"./Subscription":15,"./config":16,"./util/hostReportError":175,"./util/isFunction":180}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1812,7 +3623,7 @@ function flattenUnsubscriptionErrors(errors) {
   }, []);
 }
 
-},{"./util/UnsubscriptionError":172,"./util/isArray":176,"./util/isFunction":179,"./util/isObject":183}],15:[function(require,module,exports){
+},{"./util/UnsubscriptionError":173,"./util/isArray":177,"./util/isFunction":180,"./util/isObject":184}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1839,7 +3650,7 @@ exports.config = {
 
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -2078,7 +3889,7 @@ var RefCountSubscriber = function (_super) {
   return RefCountSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Observable":6,"../Subject":11,"../Subscriber":13,"../Subscription":14,"../operators/refCount":108}],17:[function(require,module,exports){
+},{"../Observable":7,"../Subject":12,"../Subscriber":14,"../Subscription":15,"../operators/refCount":109}],18:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -2177,7 +3988,7 @@ var SubscribeOnObservable = function (_super) {
 
 exports.SubscribeOnObservable = SubscribeOnObservable;
 
-},{"../Observable":6,"../scheduler/asap":161,"../util/isNumeric":182}],18:[function(require,module,exports){
+},{"../Observable":7,"../scheduler/asap":162,"../util/isNumeric":183}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2325,7 +4136,7 @@ function dispatchError(state) {
   subject.error(err);
 }
 
-},{"../AsyncSubject":2,"../Observable":6,"../operators/map":86,"../util/canReportError":173,"../util/isArray":176,"../util/isScheduler":186}],19:[function(require,module,exports){
+},{"../AsyncSubject":3,"../Observable":7,"../operators/map":87,"../util/canReportError":174,"../util/isArray":177,"../util/isScheduler":187}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2492,7 +4303,7 @@ function dispatchError(arg) {
   subject.error(err);
 }
 
-},{"../AsyncSubject":2,"../Observable":6,"../operators/map":86,"../util/canReportError":173,"../util/isArray":176,"../util/isScheduler":186}],20:[function(require,module,exports){
+},{"../AsyncSubject":3,"../Observable":7,"../operators/map":87,"../util/canReportError":174,"../util/isArray":177,"../util/isScheduler":187}],21:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -2650,7 +4461,7 @@ var CombineLatestSubscriber = function (_super) {
 
 exports.CombineLatestSubscriber = CombineLatestSubscriber;
 
-},{"../OuterSubscriber":8,"../util/isArray":176,"../util/isScheduler":186,"../util/subscribeToResult":195,"./fromArray":26}],21:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/isArray":177,"../util/isScheduler":187,"../util/subscribeToResult":196,"./fromArray":27}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2673,7 +4484,7 @@ function concat() {
 
 exports.concat = concat;
 
-},{"../operators/concatAll":58,"./of":37}],22:[function(require,module,exports){
+},{"../operators/concatAll":59,"./of":38}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2704,7 +4515,7 @@ function defer(observableFactory) {
 
 exports.defer = defer;
 
-},{"../Observable":6,"./empty":23,"./from":25}],23:[function(require,module,exports){
+},{"../Observable":7,"./empty":24,"./from":26}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2733,7 +4544,7 @@ function emptyScheduled(scheduler) {
 
 exports.emptyScheduled = emptyScheduled;
 
-},{"../Observable":6}],24:[function(require,module,exports){
+},{"../Observable":7}],25:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -2872,7 +4683,7 @@ var ForkJoinSubscriber = function (_super) {
   return ForkJoinSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../Observable":6,"../OuterSubscriber":8,"../operators/map":86,"../util/isArray":176,"../util/subscribeToResult":195,"./empty":23}],25:[function(require,module,exports){
+},{"../Observable":7,"../OuterSubscriber":9,"../operators/map":87,"../util/isArray":177,"../util/subscribeToResult":196,"./empty":24}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2925,7 +4736,7 @@ function from(input, scheduler) {
 
 exports.from = from;
 
-},{"../Observable":6,"../util/isArrayLike":177,"../util/isInteropObservable":180,"../util/isIterable":181,"../util/isPromise":185,"../util/subscribeTo":190,"./fromArray":26,"./fromIterable":29,"./fromObservable":30,"./fromPromise":31}],26:[function(require,module,exports){
+},{"../Observable":7,"../util/isArrayLike":178,"../util/isInteropObservable":181,"../util/isIterable":182,"../util/isPromise":186,"../util/subscribeTo":191,"./fromArray":27,"./fromIterable":30,"./fromObservable":31,"./fromPromise":32}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2964,7 +4775,7 @@ function fromArray(input, scheduler) {
 
 exports.fromArray = fromArray;
 
-},{"../Observable":6,"../Subscription":14,"../util/subscribeToArray":191}],27:[function(require,module,exports){
+},{"../Observable":7,"../Subscription":15,"../util/subscribeToArray":192}],28:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3055,7 +4866,7 @@ function isEventTarget(sourceObj) {
   return sourceObj && typeof sourceObj.addEventListener === 'function' && typeof sourceObj.removeEventListener === 'function';
 }
 
-},{"../Observable":6,"../operators/map":86,"../util/isArray":176,"../util/isFunction":179}],28:[function(require,module,exports){
+},{"../Observable":7,"../operators/map":87,"../util/isArray":177,"../util/isFunction":180}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3109,7 +4920,7 @@ function fromEventPattern(addHandler, removeHandler, resultSelector) {
 
 exports.fromEventPattern = fromEventPattern;
 
-},{"../Observable":6,"../operators/map":86,"../util/isArray":176,"../util/isFunction":179}],29:[function(require,module,exports){
+},{"../Observable":7,"../operators/map":87,"../util/isArray":177,"../util/isFunction":180}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3174,7 +4985,7 @@ function fromIterable(input, scheduler) {
 
 exports.fromIterable = fromIterable;
 
-},{"../Observable":6,"../Subscription":14,"../symbol/iterator":164,"../util/subscribeToIterable":192}],30:[function(require,module,exports){
+},{"../Observable":7,"../Subscription":15,"../symbol/iterator":165,"../util/subscribeToIterable":193}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3222,7 +5033,7 @@ function fromObservable(input, scheduler) {
 
 exports.fromObservable = fromObservable;
 
-},{"../Observable":6,"../Subscription":14,"../symbol/observable":165,"../util/subscribeToObservable":193}],31:[function(require,module,exports){
+},{"../Observable":7,"../Subscription":15,"../symbol/observable":166,"../util/subscribeToObservable":194}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3262,7 +5073,7 @@ function fromPromise(input, scheduler) {
 
 exports.fromPromise = fromPromise;
 
-},{"../Observable":6,"../Subscription":14,"../util/subscribeToPromise":194}],32:[function(require,module,exports){
+},{"../Observable":7,"../Subscription":15,"../util/subscribeToPromise":195}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3415,7 +5226,7 @@ function dispatch(state) {
   return this.schedule(state);
 }
 
-},{"../Observable":6,"../util/identity":175,"../util/isScheduler":186}],33:[function(require,module,exports){
+},{"../Observable":7,"../util/identity":176,"../util/isScheduler":187}],34:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3442,7 +5253,7 @@ function iif(condition, trueResult, falseResult) {
 
 exports.iif = iif;
 
-},{"./defer":22,"./empty":23}],34:[function(require,module,exports){
+},{"./defer":23,"./empty":24}],35:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3496,7 +5307,7 @@ function dispatch(state) {
   }, period);
 }
 
-},{"../Observable":6,"../scheduler/async":162,"../util/isNumeric":182}],35:[function(require,module,exports){
+},{"../Observable":7,"../scheduler/async":163,"../util/isNumeric":183}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3541,7 +5352,7 @@ function merge() {
 
 exports.merge = merge;
 
-},{"../Observable":6,"../operators/mergeAll":91,"../util/isScheduler":186,"./fromArray":26}],36:[function(require,module,exports){
+},{"../Observable":7,"../operators/mergeAll":92,"../util/isScheduler":187,"./fromArray":27}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3560,7 +5371,7 @@ function never() {
 
 exports.never = never;
 
-},{"../Observable":6,"../util/noop":187}],37:[function(require,module,exports){
+},{"../Observable":7,"../util/noop":188}],38:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3604,7 +5415,7 @@ function of() {
 
 exports.of = of;
 
-},{"../util/isScheduler":186,"./empty":23,"./fromArray":26,"./scalar":42}],38:[function(require,module,exports){
+},{"../util/isScheduler":187,"./empty":24,"./fromArray":27,"./scalar":43}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3654,7 +5465,7 @@ function onErrorResumeNext() {
 
 exports.onErrorResumeNext = onErrorResumeNext;
 
-},{"../Observable":6,"../util/isArray":176,"./empty":23,"./from":25}],39:[function(require,module,exports){
+},{"../Observable":7,"../util/isArray":177,"./empty":24,"./from":26}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3724,7 +5535,7 @@ function dispatch(state) {
 
 exports.dispatch = dispatch;
 
-},{"../Observable":6,"../Subscription":14}],40:[function(require,module,exports){
+},{"../Observable":7,"../Subscription":15}],41:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -3856,7 +5667,7 @@ var RaceSubscriber = function (_super) {
 
 exports.RaceSubscriber = RaceSubscriber;
 
-},{"../OuterSubscriber":8,"../util/isArray":176,"../util/subscribeToResult":195,"./fromArray":26}],41:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/isArray":177,"../util/subscribeToResult":196,"./fromArray":27}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3931,7 +5742,7 @@ function dispatch(state) {
 
 exports.dispatch = dispatch;
 
-},{"../Observable":6}],42:[function(require,module,exports){
+},{"../Observable":7}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3952,7 +5763,7 @@ function scalar(value) {
 
 exports.scalar = scalar;
 
-},{"../Observable":6}],43:[function(require,module,exports){
+},{"../Observable":7}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3984,7 +5795,7 @@ function dispatch(_a) {
   subscriber.error(error);
 }
 
-},{"../Observable":6}],44:[function(require,module,exports){
+},{"../Observable":7}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4044,7 +5855,7 @@ function dispatch(state) {
   this.schedule(state, period);
 }
 
-},{"../Observable":6,"../scheduler/async":162,"../util/isNumeric":182,"../util/isScheduler":186}],45:[function(require,module,exports){
+},{"../Observable":7,"../scheduler/async":163,"../util/isNumeric":183,"../util/isScheduler":187}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4091,7 +5902,7 @@ function using(resourceFactory, observableFactory) {
 
 exports.using = using;
 
-},{"../Observable":6,"./empty":23,"./from":25}],46:[function(require,module,exports){
+},{"../Observable":7,"./empty":24,"./from":26}],47:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -4410,7 +6221,7 @@ var ZipBufferIterator = function (_super) {
   return ZipBufferIterator;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../../internal/symbol/iterator":164,"../OuterSubscriber":8,"../Subscriber":13,"../util/isArray":176,"../util/subscribeToResult":195,"./fromArray":26}],47:[function(require,module,exports){
+},{"../../internal/symbol/iterator":165,"../OuterSubscriber":9,"../Subscriber":14,"../util/isArray":177,"../util/subscribeToResult":196,"./fromArray":27}],48:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -4530,7 +6341,7 @@ var AuditSubscriber = function (_super) {
   return AuditSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],48:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4555,7 +6366,7 @@ function auditTime(duration, scheduler) {
 
 exports.auditTime = auditTime;
 
-},{"../observable/timer":44,"../scheduler/async":162,"./audit":47}],49:[function(require,module,exports){
+},{"../observable/timer":45,"../scheduler/async":163,"./audit":48}],50:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -4636,7 +6447,7 @@ var BufferSubscriber = function (_super) {
   return BufferSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],50:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],51:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -4790,7 +6601,7 @@ var BufferSkipCountSubscriber = function (_super) {
   return BufferSkipCountSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],51:[function(require,module,exports){
+},{"../Subscriber":14}],52:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5039,7 +6850,7 @@ function dispatchBufferClose(arg) {
   subscriber.closeContext(context);
 }
 
-},{"../Subscriber":13,"../scheduler/async":162,"../util/isScheduler":186}],52:[function(require,module,exports){
+},{"../Subscriber":14,"../scheduler/async":163,"../util/isScheduler":187}],53:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5209,7 +7020,7 @@ var BufferToggleSubscriber = function (_super) {
   return BufferToggleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subscription":14,"../util/subscribeToResult":195}],53:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subscription":15,"../util/subscribeToResult":196}],54:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5346,7 +7157,7 @@ var BufferWhenSubscriber = function (_super) {
   return BufferWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subscription":14,"../util/subscribeToResult":195}],54:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subscription":15,"../util/subscribeToResult":196}],55:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5439,7 +7250,7 @@ var CatchSubscriber = function (_super) {
   return CatchSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../util/subscribeToResult":195}],55:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../util/subscribeToResult":196}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5456,7 +7267,7 @@ function combineAll(project) {
 
 exports.combineAll = combineAll;
 
-},{"../observable/combineLatest":20}],56:[function(require,module,exports){
+},{"../observable/combineLatest":21}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5495,7 +7306,7 @@ function combineLatest() {
 
 exports.combineLatest = combineLatest;
 
-},{"../observable/combineLatest":20,"../observable/from":25,"../util/isArray":176}],57:[function(require,module,exports){
+},{"../observable/combineLatest":21,"../observable/from":26,"../util/isArray":177}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5518,7 +7329,7 @@ function concat() {
 
 exports.concat = concat;
 
-},{"../observable/concat":21}],58:[function(require,module,exports){
+},{"../observable/concat":22}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5533,7 +7344,7 @@ function concatAll() {
 
 exports.concatAll = concatAll;
 
-},{"./mergeAll":91}],59:[function(require,module,exports){
+},{"./mergeAll":92}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5548,7 +7359,7 @@ function concatMap(project, resultSelector) {
 
 exports.concatMap = concatMap;
 
-},{"./mergeMap":92}],60:[function(require,module,exports){
+},{"./mergeMap":93}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5565,7 +7376,7 @@ function concatMapTo(innerObservable, resultSelector) {
 
 exports.concatMapTo = concatMapTo;
 
-},{"./concatMap":59}],61:[function(require,module,exports){
+},{"./concatMap":60}],62:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5663,7 +7474,7 @@ var CountSubscriber = function (_super) {
   return CountSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],62:[function(require,module,exports){
+},{"../Subscriber":14}],63:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5793,7 +7604,7 @@ var DebounceSubscriber = function (_super) {
   return DebounceSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],63:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],64:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5907,7 +7718,7 @@ function dispatchNext(subscriber) {
   subscriber.debouncedNext();
 }
 
-},{"../Subscriber":13,"../scheduler/async":162}],64:[function(require,module,exports){
+},{"../Subscriber":14,"../scheduler/async":163}],65:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -5991,7 +7802,7 @@ var DefaultIfEmptySubscriber = function (_super) {
   return DefaultIfEmptySubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],65:[function(require,module,exports){
+},{"../Subscriber":14}],66:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6142,7 +7953,7 @@ var DelayMessage = function () {
   return DelayMessage;
 }();
 
-},{"../Notification":5,"../Subscriber":13,"../scheduler/async":162,"../util/isDate":178}],66:[function(require,module,exports){
+},{"../Notification":6,"../Subscriber":14,"../scheduler/async":163,"../util/isDate":179}],67:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6345,7 +8156,7 @@ var SubscriptionDelaySubscriber = function (_super) {
   return SubscriptionDelaySubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Observable":6,"../OuterSubscriber":8,"../Subscriber":13,"../util/subscribeToResult":195}],67:[function(require,module,exports){
+},{"../Observable":7,"../OuterSubscriber":9,"../Subscriber":14,"../util/subscribeToResult":196}],68:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6410,7 +8221,7 @@ var DeMaterializeSubscriber = function (_super) {
   return DeMaterializeSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],68:[function(require,module,exports){
+},{"../Subscriber":14}],69:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6526,7 +8337,7 @@ var DistinctSubscriber = function (_super) {
 
 exports.DistinctSubscriber = DistinctSubscriber;
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],69:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],70:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6632,7 +8443,7 @@ var DistinctUntilChangedSubscriber = function (_super) {
   return DistinctUntilChangedSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],70:[function(require,module,exports){
+},{"../Subscriber":14}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6649,7 +8460,7 @@ function distinctUntilKeyChanged(key, compare) {
 
 exports.distinctUntilKeyChanged = distinctUntilKeyChanged;
 
-},{"./distinctUntilChanged":69}],71:[function(require,module,exports){
+},{"./distinctUntilChanged":70}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6683,7 +8494,7 @@ function elementAt(index, defaultValue) {
 
 exports.elementAt = elementAt;
 
-},{"../util/ArgumentOutOfRangeError":167,"./defaultIfEmpty":64,"./filter":77,"./take":129,"./throwIfEmpty":136}],72:[function(require,module,exports){
+},{"../util/ArgumentOutOfRangeError":168,"./defaultIfEmpty":65,"./filter":78,"./take":130,"./throwIfEmpty":137}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6730,7 +8541,7 @@ function endWith() {
 
 exports.endWith = endWith;
 
-},{"../observable/concat":21,"../observable/empty":23,"../observable/fromArray":26,"../observable/scalar":42,"../util/isScheduler":186}],73:[function(require,module,exports){
+},{"../observable/concat":22,"../observable/empty":24,"../observable/fromArray":27,"../observable/scalar":43,"../util/isScheduler":187}],74:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6826,7 +8637,7 @@ var EverySubscriber = function (_super) {
   return EverySubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],74:[function(require,module,exports){
+},{"../Subscriber":14}],75:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -6917,7 +8728,7 @@ var SwitchFirstSubscriber = function (_super) {
   return SwitchFirstSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],75:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],76:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7061,7 +8872,7 @@ var ExhaustMapSubscriber = function (_super) {
   return ExhaustMapSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../observable/from":25,"../util/subscribeToResult":195,"./map":86}],76:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../observable/from":26,"../util/subscribeToResult":196,"./map":87}],77:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7235,7 +9046,7 @@ var ExpandSubscriber = function (_super) {
 
 exports.ExpandSubscriber = ExpandSubscriber;
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],77:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],78:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7319,7 +9130,7 @@ var FilterSubscriber = function (_super) {
   return FilterSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],78:[function(require,module,exports){
+},{"../Subscriber":14}],79:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7388,7 +9199,7 @@ var FinallySubscriber = function (_super) {
   return FinallySubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../Subscription":14}],79:[function(require,module,exports){
+},{"../Subscriber":14,"../Subscription":15}],80:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7498,7 +9309,7 @@ var FindValueSubscriber = function (_super) {
 
 exports.FindValueSubscriber = FindValueSubscriber;
 
-},{"../Subscriber":13}],80:[function(require,module,exports){
+},{"../Subscriber":14}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7515,7 +9326,7 @@ function findIndex(predicate, thisArg) {
 
 exports.findIndex = findIndex;
 
-},{"../operators/find":79}],81:[function(require,module,exports){
+},{"../operators/find":80}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7547,7 +9358,7 @@ function first(predicate, defaultValue) {
 
 exports.first = first;
 
-},{"../util/EmptyError":168,"../util/identity":175,"./defaultIfEmpty":64,"./filter":77,"./take":129,"./throwIfEmpty":136}],82:[function(require,module,exports){
+},{"../util/EmptyError":169,"../util/identity":176,"./defaultIfEmpty":65,"./filter":78,"./take":130,"./throwIfEmpty":137}],83:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7817,7 +9628,7 @@ var InnerRefCountSubscription = function (_super) {
   return InnerRefCountSubscription;
 }(Subscription_1.Subscription);
 
-},{"../Observable":6,"../Subject":11,"../Subscriber":13,"../Subscription":14}],83:[function(require,module,exports){
+},{"../Observable":7,"../Subject":12,"../Subscriber":14,"../Subscription":15}],84:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7880,7 +9691,7 @@ var IgnoreElementsSubscriber = function (_super) {
   return IgnoreElementsSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],84:[function(require,module,exports){
+},{"../Subscriber":14}],85:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -7955,7 +9766,7 @@ var IsEmptySubscriber = function (_super) {
   return IsEmptySubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],85:[function(require,module,exports){
+},{"../Subscriber":14}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7987,7 +9798,7 @@ function last(predicate, defaultValue) {
 
 exports.last = last;
 
-},{"../util/EmptyError":168,"../util/identity":175,"./defaultIfEmpty":64,"./filter":77,"./takeLast":130,"./throwIfEmpty":136}],86:[function(require,module,exports){
+},{"../util/EmptyError":169,"../util/identity":176,"./defaultIfEmpty":65,"./filter":78,"./takeLast":131,"./throwIfEmpty":137}],87:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8075,7 +9886,7 @@ var MapSubscriber = function (_super) {
   return MapSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],87:[function(require,module,exports){
+},{"../Subscriber":14}],88:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8145,7 +9956,7 @@ var MapToSubscriber = function (_super) {
   return MapToSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],88:[function(require,module,exports){
+},{"../Subscriber":14}],89:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8224,7 +10035,7 @@ var MaterializeSubscriber = function (_super) {
   return MaterializeSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Notification":5,"../Subscriber":13}],89:[function(require,module,exports){
+},{"../Notification":6,"../Subscriber":14}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8244,7 +10055,7 @@ function max(comparer) {
 
 exports.max = max;
 
-},{"./reduce":107}],90:[function(require,module,exports){
+},{"./reduce":108}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8267,7 +10078,7 @@ function merge() {
 
 exports.merge = merge;
 
-},{"../observable/merge":35}],91:[function(require,module,exports){
+},{"../observable/merge":36}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8288,7 +10099,7 @@ function mergeAll(concurrent) {
 
 exports.mergeAll = mergeAll;
 
-},{"../util/identity":175,"./mergeMap":92}],92:[function(require,module,exports){
+},{"../util/identity":176,"./mergeMap":93}],93:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8453,7 +10264,7 @@ var MergeMapSubscriber = function (_super) {
 
 exports.MergeMapSubscriber = MergeMapSubscriber;
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../observable/from":25,"../util/subscribeToResult":195,"./map":86}],93:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../observable/from":26,"../util/subscribeToResult":196,"./map":87}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8484,7 +10295,7 @@ function mergeMapTo(innerObservable, resultSelector, concurrent) {
 
 exports.mergeMapTo = mergeMapTo;
 
-},{"./mergeMap":92}],94:[function(require,module,exports){
+},{"./mergeMap":93}],95:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8637,7 +10448,7 @@ var MergeScanSubscriber = function (_super) {
 
 exports.MergeScanSubscriber = MergeScanSubscriber;
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../util/subscribeToResult":195}],95:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../util/subscribeToResult":196}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8657,7 +10468,7 @@ function min(comparer) {
 
 exports.min = min;
 
-},{"./reduce":107}],96:[function(require,module,exports){
+},{"./reduce":108}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8710,7 +10521,7 @@ var MulticastOperator = function () {
 
 exports.MulticastOperator = MulticastOperator;
 
-},{"../observable/ConnectableObservable":16}],97:[function(require,module,exports){
+},{"../observable/ConnectableObservable":17}],98:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8833,7 +10644,7 @@ var ObserveOnMessage = function () {
 
 exports.ObserveOnMessage = ObserveOnMessage;
 
-},{"../Notification":5,"../Subscriber":13}],98:[function(require,module,exports){
+},{"../Notification":6,"../Subscriber":14}],99:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -8968,7 +10779,7 @@ var OnErrorResumeNextSubscriber = function (_super) {
   return OnErrorResumeNextSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../observable/from":25,"../util/isArray":176,"../util/subscribeToResult":195}],99:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../observable/from":26,"../util/isArray":177,"../util/subscribeToResult":196}],100:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9042,7 +10853,7 @@ var PairwiseSubscriber = function (_super) {
   return PairwiseSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],100:[function(require,module,exports){
+},{"../Subscriber":14}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9061,7 +10872,7 @@ function partition(predicate, thisArg) {
 
 exports.partition = partition;
 
-},{"../util/not":188,"./filter":77}],101:[function(require,module,exports){
+},{"../util/not":189,"./filter":78}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9110,7 +10921,7 @@ function plucker(props, length) {
   return mapper;
 }
 
-},{"./map":86}],102:[function(require,module,exports){
+},{"./map":87}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9129,7 +10940,7 @@ function publish(selector) {
 
 exports.publish = publish;
 
-},{"../Subject":11,"./multicast":96}],103:[function(require,module,exports){
+},{"../Subject":12,"./multicast":97}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9148,7 +10959,7 @@ function publishBehavior(value) {
 
 exports.publishBehavior = publishBehavior;
 
-},{"../BehaviorSubject":3,"./multicast":96}],104:[function(require,module,exports){
+},{"../BehaviorSubject":4,"./multicast":97}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9167,7 +10978,7 @@ function publishLast() {
 
 exports.publishLast = publishLast;
 
-},{"../AsyncSubject":2,"./multicast":96}],105:[function(require,module,exports){
+},{"../AsyncSubject":3,"./multicast":97}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9194,7 +11005,7 @@ function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
 
 exports.publishReplay = publishReplay;
 
-},{"../ReplaySubject":9,"./multicast":96}],106:[function(require,module,exports){
+},{"../ReplaySubject":10,"./multicast":97}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9223,7 +11034,7 @@ function race() {
 
 exports.race = race;
 
-},{"../observable/race":40,"../util/isArray":176}],107:[function(require,module,exports){
+},{"../observable/race":41,"../util/isArray":177}],108:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9254,7 +11065,7 @@ function reduce(accumulator, seed) {
 
 exports.reduce = reduce;
 
-},{"../util/pipe":189,"./defaultIfEmpty":64,"./scan":115,"./takeLast":130}],108:[function(require,module,exports){
+},{"../util/pipe":190,"./defaultIfEmpty":65,"./scan":116,"./takeLast":131}],109:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9361,7 +11172,7 @@ var RefCountSubscriber = function (_super) {
   return RefCountSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],109:[function(require,module,exports){
+},{"../Subscriber":14}],110:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9457,7 +11268,7 @@ var RepeatSubscriber = function (_super) {
   return RepeatSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../observable/empty":23}],110:[function(require,module,exports){
+},{"../Subscriber":14,"../observable/empty":24}],111:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9601,7 +11412,7 @@ var RepeatWhenSubscriber = function (_super) {
   return RepeatWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subject":11,"../util/subscribeToResult":195}],111:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subject":12,"../util/subscribeToResult":196}],112:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9689,7 +11500,7 @@ var RetrySubscriber = function (_super) {
   return RetrySubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],112:[function(require,module,exports){
+},{"../Subscriber":14}],113:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9820,7 +11631,7 @@ var RetryWhenSubscriber = function (_super) {
   return RetryWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subject":11,"../util/subscribeToResult":195}],113:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subject":12,"../util/subscribeToResult":196}],114:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -9911,7 +11722,7 @@ var SampleSubscriber = function (_super) {
   return SampleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],114:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],115:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10011,7 +11822,7 @@ function dispatchNotification(state) {
   this.schedule(state, period);
 }
 
-},{"../Subscriber":13,"../scheduler/async":162}],115:[function(require,module,exports){
+},{"../Subscriber":14,"../scheduler/async":163}],116:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10127,7 +11938,7 @@ var ScanSubscriber = function (_super) {
   return ScanSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],116:[function(require,module,exports){
+},{"../Subscriber":14}],117:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10301,7 +12112,7 @@ var SequenceEqualCompareToSubscriber = function (_super) {
   return SequenceEqualCompareToSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],117:[function(require,module,exports){
+},{"../Subscriber":14}],118:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10326,7 +12137,7 @@ function share() {
 
 exports.share = share;
 
-},{"../Subject":11,"./multicast":96,"./refCount":108}],118:[function(require,module,exports){
+},{"../Subject":12,"./multicast":97,"./refCount":109}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10403,7 +12214,7 @@ function shareReplayOperator(_a) {
   };
 }
 
-},{"../ReplaySubject":9}],119:[function(require,module,exports){
+},{"../ReplaySubject":10}],120:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10515,7 +12326,7 @@ var SingleSubscriber = function (_super) {
   return SingleSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../util/EmptyError":168}],120:[function(require,module,exports){
+},{"../Subscriber":14,"../util/EmptyError":169}],121:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10588,7 +12399,7 @@ var SkipSubscriber = function (_super) {
   return SkipSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],121:[function(require,module,exports){
+},{"../Subscriber":14}],122:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10681,7 +12492,7 @@ var SkipLastSubscriber = function (_super) {
   return SkipLastSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../util/ArgumentOutOfRangeError":167}],122:[function(require,module,exports){
+},{"../Subscriber":14,"../util/ArgumentOutOfRangeError":168}],123:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10773,7 +12584,7 @@ var SkipUntilSubscriber = function (_super) {
   return SkipUntilSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../util/subscribeToResult":195}],123:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../util/subscribeToResult":196}],124:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -10862,7 +12673,7 @@ var SkipWhileSubscriber = function (_super) {
   return SkipWhileSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],124:[function(require,module,exports){
+},{"../Subscriber":14}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10909,7 +12720,7 @@ function startWith() {
 
 exports.startWith = startWith;
 
-},{"../observable/concat":21,"../observable/empty":23,"../observable/fromArray":26,"../observable/scalar":42,"../util/isScheduler":186}],125:[function(require,module,exports){
+},{"../observable/concat":22,"../observable/empty":24,"../observable/fromArray":27,"../observable/scalar":43,"../util/isScheduler":187}],126:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10943,7 +12754,7 @@ var SubscribeOnOperator = function () {
   return SubscribeOnOperator;
 }();
 
-},{"../observable/SubscribeOnObservable":17}],126:[function(require,module,exports){
+},{"../observable/SubscribeOnObservable":18}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10960,7 +12771,7 @@ function switchAll() {
 
 exports.switchAll = switchAll;
 
-},{"../util/identity":175,"./switchMap":127}],127:[function(require,module,exports){
+},{"../util/identity":176,"./switchMap":128}],128:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11100,7 +12911,7 @@ var SwitchMapSubscriber = function (_super) {
   return SwitchMapSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../InnerSubscriber":4,"../OuterSubscriber":8,"../observable/from":25,"../util/subscribeToResult":195,"./map":86}],128:[function(require,module,exports){
+},{"../InnerSubscriber":5,"../OuterSubscriber":9,"../observable/from":26,"../util/subscribeToResult":196,"./map":87}],129:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11119,7 +12930,7 @@ function switchMapTo(innerObservable, resultSelector) {
 
 exports.switchMapTo = switchMapTo;
 
-},{"./switchMap":127}],129:[function(require,module,exports){
+},{"./switchMap":128}],130:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11212,7 +13023,7 @@ var TakeSubscriber = function (_super) {
   return TakeSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../observable/empty":23,"../util/ArgumentOutOfRangeError":167}],130:[function(require,module,exports){
+},{"../Subscriber":14,"../observable/empty":24,"../util/ArgumentOutOfRangeError":168}],131:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11322,7 +13133,7 @@ var TakeLastSubscriber = function (_super) {
   return TakeLastSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../observable/empty":23,"../util/ArgumentOutOfRangeError":167}],131:[function(require,module,exports){
+},{"../Subscriber":14,"../observable/empty":24,"../util/ArgumentOutOfRangeError":168}],132:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11405,7 +13216,7 @@ var TakeUntilSubscriber = function (_super) {
   return TakeUntilSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],132:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],133:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11506,7 +13317,7 @@ var TakeWhileSubscriber = function (_super) {
   return TakeWhileSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13}],133:[function(require,module,exports){
+},{"../Subscriber":14}],134:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11626,7 +13437,7 @@ var TapSubscriber = function (_super) {
   return TapSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subscriber":13,"../util/isFunction":179,"../util/noop":187}],134:[function(require,module,exports){
+},{"../Subscriber":14,"../util/isFunction":180,"../util/noop":188}],135:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11777,7 +13588,7 @@ var ThrottleSubscriber = function (_super) {
   return ThrottleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],135:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],136:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -11910,7 +13721,7 @@ function dispatchNext(arg) {
   subscriber.clearThrottle();
 }
 
-},{"../Subscriber":13,"../scheduler/async":162,"./throttle":134}],136:[function(require,module,exports){
+},{"../Subscriber":14,"../scheduler/async":163,"./throttle":135}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11943,7 +13754,7 @@ function defaultErrorFactory() {
   return new EmptyError_1.EmptyError();
 }
 
-},{"../util/EmptyError":168,"./tap":133}],137:[function(require,module,exports){
+},{"../util/EmptyError":169,"./tap":134}],138:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11999,7 +13810,7 @@ var TimeInterval = function () {
 
 exports.TimeInterval = TimeInterval;
 
-},{"../observable/defer":22,"../scheduler/async":162,"./map":86,"./scan":115}],138:[function(require,module,exports){
+},{"../observable/defer":23,"../scheduler/async":163,"./map":87,"./scan":116}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12024,7 +13835,7 @@ function timeout(due, scheduler) {
 
 exports.timeout = timeout;
 
-},{"../observable/throwError":43,"../scheduler/async":162,"../util/TimeoutError":171,"./timeoutWith":139}],139:[function(require,module,exports){
+},{"../observable/throwError":44,"../scheduler/async":163,"../util/TimeoutError":172,"./timeoutWith":140}],140:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -12144,7 +13955,7 @@ var TimeoutWithSubscriber = function (_super) {
   return TimeoutWithSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../scheduler/async":162,"../util/isDate":178,"../util/subscribeToResult":195}],140:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../scheduler/async":163,"../util/isDate":179,"../util/subscribeToResult":196}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12178,7 +13989,7 @@ var Timestamp = function () {
 
 exports.Timestamp = Timestamp;
 
-},{"../scheduler/async":162,"./map":86}],141:[function(require,module,exports){
+},{"../scheduler/async":163,"./map":87}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12202,7 +14013,7 @@ function toArray() {
 
 exports.toArray = toArray;
 
-},{"./reduce":107}],142:[function(require,module,exports){
+},{"./reduce":108}],143:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -12322,7 +14133,7 @@ var WindowSubscriber = function (_super) {
   return WindowSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subject":11,"../util/subscribeToResult":195}],143:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subject":12,"../util/subscribeToResult":196}],144:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -12453,7 +14264,7 @@ var WindowCountSubscriber = function (_super) {
   return WindowCountSubscriber;
 }(Subscriber_1.Subscriber);
 
-},{"../Subject":11,"../Subscriber":13}],144:[function(require,module,exports){
+},{"../Subject":12,"../Subscriber":14}],145:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -12711,7 +14522,7 @@ function dispatchWindowClose(state) {
   subscriber.closeWindow(window);
 }
 
-},{"../Subject":11,"../Subscriber":13,"../scheduler/async":162,"../util/isNumeric":182,"../util/isScheduler":186}],145:[function(require,module,exports){
+},{"../Subject":12,"../Subscriber":14,"../scheduler/async":163,"../util/isNumeric":183,"../util/isScheduler":187}],146:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -12910,7 +14721,7 @@ var WindowToggleSubscriber = function (_super) {
   return WindowToggleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subject":11,"../Subscription":14,"../util/subscribeToResult":195}],146:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subject":12,"../Subscription":15,"../util/subscribeToResult":196}],147:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13050,7 +14861,7 @@ var WindowSubscriber = function (_super) {
   return WindowSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../Subject":11,"../util/subscribeToResult":195}],147:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../Subject":12,"../util/subscribeToResult":196}],148:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13187,7 +14998,7 @@ var WithLatestFromSubscriber = function (_super) {
   return WithLatestFromSubscriber;
 }(OuterSubscriber_1.OuterSubscriber);
 
-},{"../OuterSubscriber":8,"../util/subscribeToResult":195}],148:[function(require,module,exports){
+},{"../OuterSubscriber":9,"../util/subscribeToResult":196}],149:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13210,7 +15021,7 @@ function zip() {
 
 exports.zip = zip;
 
-},{"../observable/zip":46}],149:[function(require,module,exports){
+},{"../observable/zip":47}],150:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13227,7 +15038,7 @@ function zipAll(project) {
 
 exports.zipAll = zipAll;
 
-},{"../observable/zip":46}],150:[function(require,module,exports){
+},{"../observable/zip":47}],151:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13280,7 +15091,7 @@ var Action = function (_super) {
 
 exports.Action = Action;
 
-},{"../Subscription":14}],151:[function(require,module,exports){
+},{"../Subscription":15}],152:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13361,7 +15172,7 @@ var AnimationFrameAction = function (_super) {
 
 exports.AnimationFrameAction = AnimationFrameAction;
 
-},{"./AsyncAction":155}],152:[function(require,module,exports){
+},{"./AsyncAction":156}],153:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13432,7 +15243,7 @@ var AnimationFrameScheduler = function (_super) {
 
 exports.AnimationFrameScheduler = AnimationFrameScheduler;
 
-},{"./AsyncScheduler":156}],153:[function(require,module,exports){
+},{"./AsyncScheduler":157}],154:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13513,7 +15324,7 @@ var AsapAction = function (_super) {
 
 exports.AsapAction = AsapAction;
 
-},{"../util/Immediate":169,"./AsyncAction":155}],154:[function(require,module,exports){
+},{"../util/Immediate":170,"./AsyncAction":156}],155:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13584,7 +15395,7 @@ var AsapScheduler = function (_super) {
 
 exports.AsapScheduler = AsapScheduler;
 
-},{"./AsyncScheduler":156}],155:[function(require,module,exports){
+},{"./AsyncScheduler":157}],156:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13732,7 +15543,7 @@ var AsyncAction = function (_super) {
 
 exports.AsyncAction = AsyncAction;
 
-},{"./Action":150}],156:[function(require,module,exports){
+},{"./Action":151}],157:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13832,7 +15643,7 @@ var AsyncScheduler = function (_super) {
 
 exports.AsyncScheduler = AsyncScheduler;
 
-},{"../Scheduler":10}],157:[function(require,module,exports){
+},{"../Scheduler":11}],158:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13912,7 +15723,7 @@ var QueueAction = function (_super) {
 
 exports.QueueAction = QueueAction;
 
-},{"./AsyncAction":155}],158:[function(require,module,exports){
+},{"./AsyncAction":156}],159:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -13957,7 +15768,7 @@ var QueueScheduler = function (_super) {
 
 exports.QueueScheduler = QueueScheduler;
 
-},{"./AsyncScheduler":156}],159:[function(require,module,exports){
+},{"./AsyncScheduler":157}],160:[function(require,module,exports){
 "use strict";
 
 var __extends = void 0 && (void 0).__extends || function () {
@@ -14125,7 +15936,7 @@ var VirtualAction = function (_super) {
 
 exports.VirtualAction = VirtualAction;
 
-},{"./AsyncAction":155,"./AsyncScheduler":156}],160:[function(require,module,exports){
+},{"./AsyncAction":156,"./AsyncScheduler":157}],161:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14138,7 +15949,7 @@ var AnimationFrameScheduler_1 = require("./AnimationFrameScheduler");
 
 exports.animationFrame = new AnimationFrameScheduler_1.AnimationFrameScheduler(AnimationFrameAction_1.AnimationFrameAction);
 
-},{"./AnimationFrameAction":151,"./AnimationFrameScheduler":152}],161:[function(require,module,exports){
+},{"./AnimationFrameAction":152,"./AnimationFrameScheduler":153}],162:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14151,7 +15962,7 @@ var AsapScheduler_1 = require("./AsapScheduler");
 
 exports.asap = new AsapScheduler_1.AsapScheduler(AsapAction_1.AsapAction);
 
-},{"./AsapAction":153,"./AsapScheduler":154}],162:[function(require,module,exports){
+},{"./AsapAction":154,"./AsapScheduler":155}],163:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14164,7 +15975,7 @@ var AsyncScheduler_1 = require("./AsyncScheduler");
 
 exports.async = new AsyncScheduler_1.AsyncScheduler(AsyncAction_1.AsyncAction);
 
-},{"./AsyncAction":155,"./AsyncScheduler":156}],163:[function(require,module,exports){
+},{"./AsyncAction":156,"./AsyncScheduler":157}],164:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14177,7 +15988,7 @@ var QueueScheduler_1 = require("./QueueScheduler");
 
 exports.queue = new QueueScheduler_1.QueueScheduler(QueueAction_1.QueueAction);
 
-},{"./QueueAction":157,"./QueueScheduler":158}],164:[function(require,module,exports){
+},{"./QueueAction":158,"./QueueScheduler":159}],165:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14196,7 +16007,7 @@ exports.getSymbolIterator = getSymbolIterator;
 exports.iterator = getSymbolIterator();
 exports.$$iterator = exports.iterator;
 
-},{}],165:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14204,7 +16015,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.observable = typeof Symbol === 'function' && Symbol.observable || '@@observable';
 
-},{}],166:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14213,7 +16024,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.rxSubscriber = typeof Symbol === 'function' ? Symbol('rxSubscriber') : '@@rxSubscriber_' + Math.random();
 exports.$$rxSubscriber = exports.rxSubscriber;
 
-},{}],167:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14230,7 +16041,7 @@ function ArgumentOutOfRangeErrorImpl() {
 ArgumentOutOfRangeErrorImpl.prototype = Object.create(Error.prototype);
 exports.ArgumentOutOfRangeError = ArgumentOutOfRangeErrorImpl;
 
-},{}],168:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14247,7 +16058,7 @@ function EmptyErrorImpl() {
 EmptyErrorImpl.prototype = Object.create(Error.prototype);
 exports.EmptyError = EmptyErrorImpl;
 
-},{}],169:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14278,7 +16089,7 @@ exports.Immediate = {
   }
 };
 
-},{}],170:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14295,7 +16106,7 @@ function ObjectUnsubscribedErrorImpl() {
 ObjectUnsubscribedErrorImpl.prototype = Object.create(Error.prototype);
 exports.ObjectUnsubscribedError = ObjectUnsubscribedErrorImpl;
 
-},{}],171:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14312,7 +16123,7 @@ function TimeoutErrorImpl() {
 TimeoutErrorImpl.prototype = Object.create(Error.prototype);
 exports.TimeoutError = TimeoutErrorImpl;
 
-},{}],172:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14332,7 +16143,7 @@ function UnsubscriptionErrorImpl(errors) {
 UnsubscriptionErrorImpl.prototype = Object.create(Error.prototype);
 exports.UnsubscriptionError = UnsubscriptionErrorImpl;
 
-},{}],173:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14362,7 +16173,7 @@ function canReportError(observer) {
 
 exports.canReportError = canReportError;
 
-},{"../Subscriber":13}],174:[function(require,module,exports){
+},{"../Subscriber":14}],175:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14377,7 +16188,7 @@ function hostReportError(err) {
 
 exports.hostReportError = hostReportError;
 
-},{}],175:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14390,7 +16201,7 @@ function identity(x) {
 
 exports.identity = identity;
 
-},{}],176:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14401,7 +16212,7 @@ exports.isArray = Array.isArray || function (x) {
   return x && typeof x.length === 'number';
 };
 
-},{}],177:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14412,7 +16223,7 @@ exports.isArrayLike = function (x) {
   return x && typeof x.length === 'number' && typeof x !== 'function';
 };
 
-},{}],178:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14425,7 +16236,7 @@ function isDate(value) {
 
 exports.isDate = isDate;
 
-},{}],179:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14438,7 +16249,7 @@ function isFunction(x) {
 
 exports.isFunction = isFunction;
 
-},{}],180:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14453,7 +16264,7 @@ function isInteropObservable(input) {
 
 exports.isInteropObservable = isInteropObservable;
 
-},{"../symbol/observable":165}],181:[function(require,module,exports){
+},{"../symbol/observable":166}],182:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14468,7 +16279,7 @@ function isIterable(input) {
 
 exports.isIterable = isIterable;
 
-},{"../symbol/iterator":164}],182:[function(require,module,exports){
+},{"../symbol/iterator":165}],183:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14483,7 +16294,7 @@ function isNumeric(val) {
 
 exports.isNumeric = isNumeric;
 
-},{"./isArray":176}],183:[function(require,module,exports){
+},{"./isArray":177}],184:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14496,7 +16307,7 @@ function isObject(x) {
 
 exports.isObject = isObject;
 
-},{}],184:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14511,7 +16322,7 @@ function isObservable(obj) {
 
 exports.isObservable = isObservable;
 
-},{"../Observable":6}],185:[function(require,module,exports){
+},{"../Observable":7}],186:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14524,7 +16335,7 @@ function isPromise(value) {
 
 exports.isPromise = isPromise;
 
-},{}],186:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14537,7 +16348,7 @@ function isScheduler(value) {
 
 exports.isScheduler = isScheduler;
 
-},{}],187:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14548,7 +16359,7 @@ function noop() {}
 
 exports.noop = noop;
 
-},{}],188:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14567,7 +16378,7 @@ function not(pred, thisArg) {
 
 exports.not = not;
 
-},{}],189:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14606,7 +16417,7 @@ function pipeFromArray(fns) {
 
 exports.pipeFromArray = pipeFromArray;
 
-},{"./noop":187}],190:[function(require,module,exports){
+},{"./noop":188}],191:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14659,7 +16470,7 @@ exports.subscribeTo = function (result) {
   }
 };
 
-},{"../Observable":6,"../symbol/iterator":164,"../symbol/observable":165,"./isArrayLike":177,"./isObject":183,"./isPromise":185,"./subscribeToArray":191,"./subscribeToIterable":192,"./subscribeToObservable":193,"./subscribeToPromise":194}],191:[function(require,module,exports){
+},{"../Observable":7,"../symbol/iterator":165,"../symbol/observable":166,"./isArrayLike":178,"./isObject":184,"./isPromise":186,"./subscribeToArray":192,"./subscribeToIterable":193,"./subscribeToObservable":194,"./subscribeToPromise":195}],192:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14678,7 +16489,7 @@ exports.subscribeToArray = function (array) {
   };
 };
 
-},{}],192:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14718,7 +16529,7 @@ exports.subscribeToIterable = function (iterable) {
   };
 };
 
-},{"../symbol/iterator":164}],193:[function(require,module,exports){
+},{"../symbol/iterator":165}],194:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14739,7 +16550,7 @@ exports.subscribeToObservable = function (obj) {
   };
 };
 
-},{"../symbol/observable":165}],194:[function(require,module,exports){
+},{"../symbol/observable":166}],195:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14762,7 +16573,7 @@ exports.subscribeToPromise = function (promise) {
   };
 };
 
-},{"./hostReportError":174}],195:[function(require,module,exports){
+},{"./hostReportError":175}],196:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14787,7 +16598,7 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex, dest
 
 exports.subscribeToResult = subscribeToResult;
 
-},{"../InnerSubscriber":4,"./subscribeTo":190}],196:[function(require,module,exports){
+},{"../InnerSubscriber":5,"./subscribeTo":191}],197:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14820,7 +16631,7 @@ function toSubscriber(nextOrObserver, error, complete) {
 
 exports.toSubscriber = toSubscriber;
 
-},{"../Observer":7,"../Subscriber":13,"../symbol/rxSubscriber":166}],197:[function(require,module,exports){
+},{"../Observer":8,"../Subscriber":14,"../symbol/rxSubscriber":167}],198:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15243,198 +17054,33 @@ var zipAll_1 = require("../internal/operators/zipAll");
 
 exports.zipAll = zipAll_1.zipAll;
 
-},{"../internal/operators/audit":47,"../internal/operators/auditTime":48,"../internal/operators/buffer":49,"../internal/operators/bufferCount":50,"../internal/operators/bufferTime":51,"../internal/operators/bufferToggle":52,"../internal/operators/bufferWhen":53,"../internal/operators/catchError":54,"../internal/operators/combineAll":55,"../internal/operators/combineLatest":56,"../internal/operators/concat":57,"../internal/operators/concatAll":58,"../internal/operators/concatMap":59,"../internal/operators/concatMapTo":60,"../internal/operators/count":61,"../internal/operators/debounce":62,"../internal/operators/debounceTime":63,"../internal/operators/defaultIfEmpty":64,"../internal/operators/delay":65,"../internal/operators/delayWhen":66,"../internal/operators/dematerialize":67,"../internal/operators/distinct":68,"../internal/operators/distinctUntilChanged":69,"../internal/operators/distinctUntilKeyChanged":70,"../internal/operators/elementAt":71,"../internal/operators/endWith":72,"../internal/operators/every":73,"../internal/operators/exhaust":74,"../internal/operators/exhaustMap":75,"../internal/operators/expand":76,"../internal/operators/filter":77,"../internal/operators/finalize":78,"../internal/operators/find":79,"../internal/operators/findIndex":80,"../internal/operators/first":81,"../internal/operators/groupBy":82,"../internal/operators/ignoreElements":83,"../internal/operators/isEmpty":84,"../internal/operators/last":85,"../internal/operators/map":86,"../internal/operators/mapTo":87,"../internal/operators/materialize":88,"../internal/operators/max":89,"../internal/operators/merge":90,"../internal/operators/mergeAll":91,"../internal/operators/mergeMap":92,"../internal/operators/mergeMapTo":93,"../internal/operators/mergeScan":94,"../internal/operators/min":95,"../internal/operators/multicast":96,"../internal/operators/observeOn":97,"../internal/operators/onErrorResumeNext":98,"../internal/operators/pairwise":99,"../internal/operators/partition":100,"../internal/operators/pluck":101,"../internal/operators/publish":102,"../internal/operators/publishBehavior":103,"../internal/operators/publishLast":104,"../internal/operators/publishReplay":105,"../internal/operators/race":106,"../internal/operators/reduce":107,"../internal/operators/refCount":108,"../internal/operators/repeat":109,"../internal/operators/repeatWhen":110,"../internal/operators/retry":111,"../internal/operators/retryWhen":112,"../internal/operators/sample":113,"../internal/operators/sampleTime":114,"../internal/operators/scan":115,"../internal/operators/sequenceEqual":116,"../internal/operators/share":117,"../internal/operators/shareReplay":118,"../internal/operators/single":119,"../internal/operators/skip":120,"../internal/operators/skipLast":121,"../internal/operators/skipUntil":122,"../internal/operators/skipWhile":123,"../internal/operators/startWith":124,"../internal/operators/subscribeOn":125,"../internal/operators/switchAll":126,"../internal/operators/switchMap":127,"../internal/operators/switchMapTo":128,"../internal/operators/take":129,"../internal/operators/takeLast":130,"../internal/operators/takeUntil":131,"../internal/operators/takeWhile":132,"../internal/operators/tap":133,"../internal/operators/throttle":134,"../internal/operators/throttleTime":135,"../internal/operators/throwIfEmpty":136,"../internal/operators/timeInterval":137,"../internal/operators/timeout":138,"../internal/operators/timeoutWith":139,"../internal/operators/timestamp":140,"../internal/operators/toArray":141,"../internal/operators/window":142,"../internal/operators/windowCount":143,"../internal/operators/windowTime":144,"../internal/operators/windowToggle":145,"../internal/operators/windowWhen":146,"../internal/operators/withLatestFrom":147,"../internal/operators/zip":148,"../internal/operators/zipAll":149}],198:[function(require,module,exports){
+},{"../internal/operators/audit":48,"../internal/operators/auditTime":49,"../internal/operators/buffer":50,"../internal/operators/bufferCount":51,"../internal/operators/bufferTime":52,"../internal/operators/bufferToggle":53,"../internal/operators/bufferWhen":54,"../internal/operators/catchError":55,"../internal/operators/combineAll":56,"../internal/operators/combineLatest":57,"../internal/operators/concat":58,"../internal/operators/concatAll":59,"../internal/operators/concatMap":60,"../internal/operators/concatMapTo":61,"../internal/operators/count":62,"../internal/operators/debounce":63,"../internal/operators/debounceTime":64,"../internal/operators/defaultIfEmpty":65,"../internal/operators/delay":66,"../internal/operators/delayWhen":67,"../internal/operators/dematerialize":68,"../internal/operators/distinct":69,"../internal/operators/distinctUntilChanged":70,"../internal/operators/distinctUntilKeyChanged":71,"../internal/operators/elementAt":72,"../internal/operators/endWith":73,"../internal/operators/every":74,"../internal/operators/exhaust":75,"../internal/operators/exhaustMap":76,"../internal/operators/expand":77,"../internal/operators/filter":78,"../internal/operators/finalize":79,"../internal/operators/find":80,"../internal/operators/findIndex":81,"../internal/operators/first":82,"../internal/operators/groupBy":83,"../internal/operators/ignoreElements":84,"../internal/operators/isEmpty":85,"../internal/operators/last":86,"../internal/operators/map":87,"../internal/operators/mapTo":88,"../internal/operators/materialize":89,"../internal/operators/max":90,"../internal/operators/merge":91,"../internal/operators/mergeAll":92,"../internal/operators/mergeMap":93,"../internal/operators/mergeMapTo":94,"../internal/operators/mergeScan":95,"../internal/operators/min":96,"../internal/operators/multicast":97,"../internal/operators/observeOn":98,"../internal/operators/onErrorResumeNext":99,"../internal/operators/pairwise":100,"../internal/operators/partition":101,"../internal/operators/pluck":102,"../internal/operators/publish":103,"../internal/operators/publishBehavior":104,"../internal/operators/publishLast":105,"../internal/operators/publishReplay":106,"../internal/operators/race":107,"../internal/operators/reduce":108,"../internal/operators/refCount":109,"../internal/operators/repeat":110,"../internal/operators/repeatWhen":111,"../internal/operators/retry":112,"../internal/operators/retryWhen":113,"../internal/operators/sample":114,"../internal/operators/sampleTime":115,"../internal/operators/scan":116,"../internal/operators/sequenceEqual":117,"../internal/operators/share":118,"../internal/operators/shareReplay":119,"../internal/operators/single":120,"../internal/operators/skip":121,"../internal/operators/skipLast":122,"../internal/operators/skipUntil":123,"../internal/operators/skipWhile":124,"../internal/operators/startWith":125,"../internal/operators/subscribeOn":126,"../internal/operators/switchAll":127,"../internal/operators/switchMap":128,"../internal/operators/switchMapTo":129,"../internal/operators/take":130,"../internal/operators/takeLast":131,"../internal/operators/takeUntil":132,"../internal/operators/takeWhile":133,"../internal/operators/tap":134,"../internal/operators/throttle":135,"../internal/operators/throttleTime":136,"../internal/operators/throwIfEmpty":137,"../internal/operators/timeInterval":138,"../internal/operators/timeout":139,"../internal/operators/timeoutWith":140,"../internal/operators/timestamp":141,"../internal/operators/toArray":142,"../internal/operators/window":143,"../internal/operators/windowCount":144,"../internal/operators/windowTime":145,"../internal/operators/windowToggle":146,"../internal/operators/windowWhen":147,"../internal/operators/withLatestFrom":148,"../internal/operators/zip":149,"../internal/operators/zipAll":150}],199:[function(require,module,exports){
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _rect = _interopRequireDefault(require("../services/rect"));
-
-var _emittable = _interopRequireDefault(require("../threejs/interactive/emittable"));
-
-var _materials = _interopRequireDefault(require("../threejs/materials/materials"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/* jshint esversion: 6 */
-const CAMERA_DISTANCE = 2;
-const MIN_DEVICE_PIXEL_RATIO = 1;
-
-class Example01 extends _emittable.default {
-  constructor(container, product) {
-    super();
-    this.container = container;
-    this.size = {
-      width: 0,
-      height: 0,
-      aspect: 0
-    };
-    this.viewRect = new _rect.default();
-    const scene = this.scene = this.addScene();
-    const camera = this.camera = this.addCamera();
-    scene.add(camera);
-    const renderer = this.renderer = this.addRenderer();
-    const materials = this.materials = new _materials.default(renderer);
-    const lights = this.lights = this.addLights(scene);
-    /*
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-    */
-
-    this.onWindowResize = this.onWindowResize.bind(this);
-    this.onWindowResize();
-    window.addEventListener('resize', this.onWindowResize, false);
-    this.animate();
-  }
-
-  addScene() {
-    const scene = new THREE.Scene(); // scene.background = new THREE.Color(0x00000000);
-    // scene.background = new THREE.Color(0x404040);
-
-    scene.fog = new THREE.Fog(scene.background, 10, 700);
-    return scene;
-  }
-
-  addCamera() {
-    const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.01, 2000);
-    camera.position.set(0, 0, 2);
-    camera.target = new THREE.Vector3();
-    camera.zoom = 1;
-    camera.updateProjectionMatrix();
-    return camera;
-  }
-
-  addRenderer() {
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      // premultipliedAlpha: true,
-      // preserveDrawingBuffer: false,
-      alpha: true
-    });
-    this.renderer = renderer;
-    renderer.setClearColor(0xffffff, 0);
-    renderer.setPixelRatio(Math.max(window.devicePixelRatio, MIN_DEVICE_PIXEL_RATIO));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    this.container.appendChild(renderer.domElement);
-    return renderer;
-  }
-
-  addLights(parent) {
-    const lights = new THREE.Group();
-    lights.rotationScroll = new THREE.Vector3();
-    lights.rotationTime = new THREE.Vector3();
-    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.3);
-    light0.position.set(0, 0, 0);
-    lights.light0 = light0;
-    parent.add(light0);
-    const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
-    light1.position.set(0, 30, -100);
-    lights.light1 = light1;
-    lights.add(light1);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-    light2.position.set(0, -30, 100);
-    lights.light2 = light2;
-    lights.add(light2);
-    parent.add(lights);
-    return lights;
-  }
-
-  onWindowResize() {
-    try {
-      const container = this.container,
-            renderer = this.renderer,
-            camera = this.camera;
-      const size = this.size;
-      size.width = container.offsetWidth;
-      size.height = container.offsetHeight;
-      const w = size.width;
-      const h = size.height;
-      size.aspect = w / h;
-
-      if (renderer) {
-        renderer.setSize(w, h);
-      }
-
-      if (camera) {
-        camera.zoom = 1;
-        camera.aspect = w / h;
-        camera.position.z = 180 / camera.aspect;
-        camera.updateProjectionMatrix();
-        const viewRect = this.viewRect;
-        const angle = camera.fov * Math.PI / 180;
-        const height = Math.abs(camera.position.z * Math.tan(angle / 2) * 2);
-        viewRect.width = height * camera.aspect;
-        viewRect.height = height;
-      }
-    } catch (error) {
-      console.log('error', error);
-    }
-  }
-
-  render(delta) {
-    try {
-      const renderer = this.renderer;
-      const scene = this.scene;
-      /*
-      const delta = this.clock.getDelta();
-      const time = this.clock.getElapsedTime();
-      const tick = Math.floor(time * 60);
-      */
-
-      this.lights.rotationTime.y += 0.004;
-      this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
-      const camera = this.camera;
-      renderer.render(scene, camera);
-    } catch (error) {
-      console.log('error', error);
-    }
-  }
-
-  animate() {
-    const renderer = this.renderer;
-    renderer.setAnimationLoop(() => {
-      this.render();
-    });
-  }
-
-  static init() {
-    [...document.querySelectorAll('[example-01]')].map(x => new Example01(x));
-  }
-
-}
-
-exports.default = Example01;
-
-},{"../services/rect":202,"../threejs/interactive/emittable":204,"../threejs/materials/materials":205}],199:[function(require,module,exports){
-"use strict";
-
-var _example = _interopRequireDefault(require("./examples/example-01"));
 
 var _model = _interopRequireDefault(require("./model/model"));
 
 var _dom = _interopRequireDefault(require("./services/dom.service"));
 
-var _const = require("./threejs/const");
-
 var _title = _interopRequireDefault(require("./title/title"));
+
+var _world = _interopRequireDefault(require("./world/world"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* jshint esversion: 6 */
+const deg = THREE.Math.degToRad;
+
 const domService = _dom.default.get();
 
 const example = document.querySelector('[example-01]');
 
 if (example) {
-  const three = new _example.default(example);
+  const world = new _world.default(example);
   domService.scroll$().subscribe(event => {
-    three.lights.rotationScroll.y = event.scrollTop * (0, _const.deg)(0.01);
+    world.lights.rotationScroll.y = event.scrollTop * deg(0.01);
   });
   const models = [...document.querySelectorAll('[model]')].map(x => {
-    const model = new _model.default(x, three);
+    const model = new _model.default(x, world);
     return model;
   });
   const titles = [...document.querySelectorAll('[title]')].map(x => {
@@ -15443,7 +17089,7 @@ if (example) {
   });
 }
 
-},{"./examples/example-01":198,"./model/model":200,"./services/dom.service":201,"./threejs/const":203,"./title/title":206}],200:[function(require,module,exports){
+},{"./model/model":200,"./services/dom.service":201,"./title/title":205,"./world/world":206}],200:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15453,37 +17099,31 @@ exports.default = void 0;
 
 var _dom = _interopRequireDefault(require("../services/dom.service"));
 
-var _const = require("../threejs/const");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* jshint esversion: 6 */
-// "node_modules/three/examples/js/libs/inflate.min.js",
+const deg = THREE.Math.degToRad;
+
 const domService = _dom.default.get();
 
 class Model {
-  constructor(node, three) {
+  constructor(node, world) {
     this.node = node;
-    this.three = three; // this.cube();
-
+    this.world = world;
     this.load(model => {
-      this.model = model;
-      three.scene.add(model);
-      domService.scrollIntersection$(node).subscribe(event => {
-        this.update(event.intersection, event.windowRect, three.viewRect);
-      });
+      this.set(model);
     });
   }
 
   load(callback) {
     const loader = new THREE.FBXLoader();
-    loader.load('./threejs/models/tubetto.fbx', object => {
+    loader.load('./threejs/models/latte-corpo.fbx', object => {
       object.traverse(child => {
         if (child instanceof THREE.Mesh) {
           if (child.name === 'MODEL_PLASTIC_COSMETIC_TUBE_1483_PART_1_N3D') {
-            child.material = this.three.materials.tubetto;
+            child.material = this.world.materials.tubetto;
           } else {
-            child.material = this.three.materials.white;
+            child.material = this.world.materials.white;
           }
 
           console.log(child.name, child.material);
@@ -15500,6 +17140,16 @@ class Model {
     });
   }
 
+  set(model) {
+    const node = this.node;
+    const world = this.world;
+    this.model = model;
+    world.scene.add(model);
+    domService.scrollIntersection$(node).subscribe(event => {
+      this.update(event.intersection, event.windowRect, world.viewRect);
+    });
+  }
+
   update(intersection, windowRect, viewRect) {
     const sx = intersection.width / windowRect.width * 1; // * viewRect.width;
 
@@ -15508,36 +17158,36 @@ class Model {
     const tx = intersection.x * viewRect.width / windowRect.width - viewRect.width / 2;
     const ty = intersection.y * viewRect.height / windowRect.height - viewRect.height / 2; // console.log(intersection.width, viewRect.width, windowRect.width);
 
-    if (intersection.pow.y !== -1) {//
-    }
-
     const pow = 1 - intersection.pow.y;
     const scale = Math.min(sx, sy);
     const model = this.model;
     model.scale.x = model.scale.y = model.scale.z = scale;
-    model.rotation.y = -(0, _const.deg)(30) + (0, _const.deg)(60) * pow;
-    model.rotation.z = -(0, _const.deg)(15) + (0, _const.deg)(30) * pow;
+    model.rotation.y = -deg(30) + deg(60) * pow;
+    model.rotation.z = -deg(15) + deg(30) * pow;
     model.position.x = tx + (-1 + 2 * pow) * scale;
     model.position.y = -ty;
-    console.log('model', ty);
+    console.log('model', ty, scale);
   }
 
-  cube() {
+  cube(callback) {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({
       color: 0xff0000
     });
-    const model = new THREE.Mesh(geometry, material);
-    this.model = model;
-    this.three = three;
-    three.scene.add(model);
+    const mesh = new THREE.Mesh(geometry, material);
+
+    if (typeof callback === 'function') {
+      callback(mesh);
+    }
+
+    return mesh;
   }
 
 }
 
 exports.default = Model;
 
-},{"../services/dom.service":201,"../threejs/const":203}],201:[function(require,module,exports){
+},{"../services/dom.service":201}],201:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15545,6 +17195,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.tween = tween;
 exports.default = void 0;
+
+var _locomotiveScroll = _interopRequireDefault(require("locomotive-scroll"));
 
 var _rxjs = require("rxjs");
 
@@ -16021,7 +17673,32 @@ DomService.windowRect$ = function () {
 
 DomService.rafAndRect$ = (0, _rxjs.combineLatest)(DomService.raf$, DomService.windowRect$);
 
-DomService.scroll$ = function () {
+DomService.locomotiveScrollEvent$ = function () {
+  const event = {
+    scrollTop: 0,
+    scrollLeft: 0,
+    direction: 0,
+    originalEvent: null
+  };
+  const scroll = new _locomotiveScroll.default({
+    el: document.querySelector('#js-scroll'),
+    smooth: true,
+    getSpeed: true,
+    getDirection: true
+  });
+  return (0, _rxjs.fromEventPattern)(handler => {
+    scroll.on('scroll', handler);
+  }, handler => {// !!! scroll.removeListener('scroll', handler);
+  }).pipe((0, _operators.map)(instance => {
+    // instance.direction, instance.speed
+    // const progress = instance.scroll.y / instance.limit;
+    event.scrollTop = instance.scroll.y;
+    event.direction = instance.direction;
+    return event;
+  }), (0, _operators.startWith)(event), (0, _operators.shareReplay)());
+};
+
+DomService.scrollEvent$ = function () {
   const target = DomService.DEFAULT_SCROLL_TARGET;
   let previousTop = DomService.getScrollTop(target);
   const event = {
@@ -16040,11 +17717,15 @@ DomService.scroll$ = function () {
     event.originalEvent = originalEvent;
     return event;
   }), (0, _operators.startWith)(event));
+};
+
+DomService.scroll$ = function () {
+  return DomService.locomotiveScrollEvent$(); // return this.scrollEvent$();
 }();
 
 DomService.scrollAndRect$ = (0, _rxjs.combineLatest)(DomService.scroll$, DomService.windowRect$);
 
-},{"./rect":202,"rxjs":1,"rxjs/internal/scheduler/animationFrame":160,"rxjs/operators":197}],202:[function(require,module,exports){
+},{"./rect":202,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],202:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16193,126 +17874,6 @@ exports.default = Rect;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.cm = cm;
-exports.mm = mm;
-exports.deg = deg;
-exports.addCube = addCube;
-exports.cameraToPicture = cameraToPicture;
-exports.MODEL_TYPE = exports.ORIGIN = exports.POINTER_RADIUS = exports.POINT_RADIUS = exports.PANEL_RADIUS = exports.ROOM_RADIUS = exports.VR_ENABLED = exports.TEST_ENABLED = void 0;
-
-/* jshint esversion: 6 */
-
-/* global window, document */
-const TEST_ENABLED = false;
-exports.TEST_ENABLED = TEST_ENABLED;
-const VR_ENABLED = true;
-exports.VR_ENABLED = VR_ENABLED;
-const ROOM_RADIUS = 200;
-exports.ROOM_RADIUS = ROOM_RADIUS;
-const PANEL_RADIUS = 100;
-exports.PANEL_RADIUS = PANEL_RADIUS;
-const POINT_RADIUS = 99;
-exports.POINT_RADIUS = POINT_RADIUS;
-const POINTER_RADIUS = 98;
-exports.POINTER_RADIUS = POINTER_RADIUS;
-const ORIGIN = new THREE.Vector3();
-exports.ORIGIN = ORIGIN;
-const MODEL_TYPE = {
-  PROFESSIONAL_27: 1,
-  PROFESSIONAL_BLACK: 2,
-  PROFESSIONAL_WHITE: 3,
-  SCALARE_33: 4
-};
-exports.MODEL_TYPE = MODEL_TYPE;
-
-function cm(value) {
-  return value / 100;
-}
-
-function mm(value) {
-  return value / 1000;
-}
-
-function deg(value) {
-  return Math.PI / 180 * value;
-}
-
-function addCube(parent) {
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshBasicMaterial({
-    color: 0x00ff00
-  });
-  const cube = new THREE.Mesh(geometry, material);
-  parent.add(cube);
-  return cube;
-}
-
-THREE.Euler.prototype.add = function (euler) {
-  this.set(this.x + euler.x, this.y + euler.y, this.z + euler.z, this.order);
-  return this;
-};
-
-function cameraToPicture(cubeCamera, renderer, textureW) {
-  console.assert(cubeCamera instanceof THREE.CubeCamera);
-  textureW = textureW || cubeCamera.renderTarget.width;
-  const scene = new THREE.Scene();
-  const shader = THREE.ShaderLib.cube;
-  const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-  const material = new THREE.ShaderMaterial({
-    fragmentShader: shader.fragmentShader,
-    vertexShader: shader.vertexShader,
-    uniforms: uniforms,
-    depthWrite: false,
-    side: THREE.BackSide
-  }); // set the cubeCamera.renderTarget
-
-  uniforms.tCube.value = cubeCamera.renderTarget; // init geometry
-
-  const geometry = new THREE.BoxGeometry(500, 500, 500);
-  const mesh = new THREE.Mesh(geometry, material);
-  scene.add(mesh); // backup renderer parameters
-
-  const old = {
-    width: renderer.domElement.width,
-    height: renderer.domElement.height,
-    devicePixelRatio: renderer.devicePixelRatio
-  }; // set new renderer parameters
-
-  renderer.setSize(textureW, textureW);
-  renderer.devicePixelRatio = 1;
-  const images = [];
-  cubeCamera.children.slice().forEach(subCamera => {
-    // render sceneRtt with subCamera
-    renderer.render(scene, subCamera); // clone renderer.domElement
-
-    const canvas = document.createElement('canvas');
-    canvas.width = renderer.domElement.width;
-    canvas.height = renderer.domElement.height;
-    const context = canvas.getContext('2d'); // mirror in y axis - im not sure why it is needed
-
-    context.translate(0, canvas.height);
-    context.scale(1, -1); // draw the image in the cloned canvas
-
-    context.drawImage(renderer.domElement, 0, 0); // store cloned canvas
-
-    images.push(canvas);
-  }); // restore renderer parameters
-
-  renderer.devicePixelRatio = old.devicePixelRatio;
-  renderer.setSize(old.width, old.height);
-  mesh.dispose();
-  geometry.dispose();
-  material.dispose(); // return the just-built image
-
-  return images;
-}
-
-},{}],204:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 exports.default = void 0;
 
 /* jshint esversion: 6 */
@@ -16361,7 +17922,7 @@ class Emittable {
 
 exports.default = Emittable;
 
-},{}],205:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16448,7 +18009,7 @@ class Materials {
 
 exports.default = Materials;
 
-},{}],206:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16482,12 +18043,22 @@ class Title {
     const node = this.node;
     const splitting = this.splitting;
     const h = node.offsetHeight;
+    const direction = node.getAttribute('title') || 'left';
     const tweens = splitting.chars.map((char, index) => {
       // const index = getComputedStyle(char).getPropertyValue('--char-index');
-      const i = splitting.chars.length - index;
-      TweenMax.set(char, {
-        x: -5 * h * pow - i * h * pow
-      });
+      if (direction === 'left') {
+        const i = splitting.chars.length - index;
+        TweenMax.set(char, {
+          x: -5 * h * pow - i * h * pow,
+          opacity: 1 - pow
+        });
+      } else {
+        const i = index;
+        TweenMax.set(char, {
+          x: 5 * h * pow + i * h * pow,
+          opacity: 1 - pow
+        });
+      }
     });
   }
 
@@ -16495,5 +18066,170 @@ class Title {
 
 exports.default = Title;
 
-},{"../services/dom.service":201}]},{},[199]);
+},{"../services/dom.service":201}],206:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _rect = _interopRequireDefault(require("../services/rect"));
+
+var _emittable = _interopRequireDefault(require("../threejs/interactive/emittable"));
+
+var _materials = _interopRequireDefault(require("../threejs/materials/materials"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* jshint esversion: 6 */
+const CAMERA_DISTANCE = 2;
+const MIN_DEVICE_PIXEL_RATIO = 1;
+
+class World extends _emittable.default {
+  constructor(container, product) {
+    super();
+    this.container = container;
+    this.size = {
+      width: 0,
+      height: 0,
+      aspect: 0
+    };
+    this.viewRect = new _rect.default();
+    const scene = this.scene = this.addScene();
+    const camera = this.camera = this.addCamera();
+    scene.add(camera);
+    const renderer = this.renderer = this.addRenderer();
+    const materials = this.materials = new _materials.default(renderer);
+    const lights = this.lights = this.addLights(scene);
+    /*
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    */
+
+    this.onWindowResize = this.onWindowResize.bind(this);
+    this.onWindowResize();
+    window.addEventListener('resize', this.onWindowResize, false);
+    this.animate();
+  }
+
+  addScene() {
+    const scene = new THREE.Scene(); // scene.background = new THREE.Color(0x00000000);
+    // scene.background = new THREE.Color(0x404040);
+
+    scene.fog = new THREE.Fog(scene.background, 10, 700);
+    return scene;
+  }
+
+  addCamera() {
+    const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.01, 2000);
+    camera.position.set(0, 0, 2);
+    camera.target = new THREE.Vector3();
+    camera.zoom = 1;
+    camera.updateProjectionMatrix();
+    return camera;
+  }
+
+  addRenderer() {
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      // premultipliedAlpha: true,
+      // preserveDrawingBuffer: false,
+      alpha: true
+    });
+    this.renderer = renderer;
+    renderer.setClearColor(0xffffff, 0);
+    renderer.setPixelRatio(Math.max(window.devicePixelRatio, MIN_DEVICE_PIXEL_RATIO));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    this.container.appendChild(renderer.domElement);
+    return renderer;
+  }
+
+  addLights(parent) {
+    const lights = new THREE.Group();
+    lights.rotationScroll = new THREE.Vector3();
+    lights.rotationTime = new THREE.Vector3();
+    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.3);
+    light0.position.set(0, 0, 0);
+    lights.light0 = light0;
+    parent.add(light0);
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light1.position.set(0, 30, -100);
+    lights.light1 = light1;
+    lights.add(light1);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light2.position.set(0, -30, 100);
+    lights.light2 = light2;
+    lights.add(light2);
+    parent.add(lights);
+    return lights;
+  }
+
+  onWindowResize() {
+    try {
+      const container = this.container,
+            renderer = this.renderer,
+            camera = this.camera;
+      const size = this.size;
+      size.width = container.offsetWidth;
+      size.height = container.offsetHeight;
+      const w = size.width;
+      const h = size.height;
+      size.aspect = w / h;
+
+      if (renderer) {
+        renderer.setSize(w, h);
+      }
+
+      if (camera) {
+        camera.zoom = 1;
+        camera.aspect = w / h;
+        camera.position.z = 180 / camera.aspect;
+        camera.updateProjectionMatrix();
+        const viewRect = this.viewRect;
+        const angle = camera.fov * Math.PI / 180;
+        const height = Math.abs(camera.position.z * Math.tan(angle / 2) * 2);
+        viewRect.width = height * camera.aspect;
+        viewRect.height = height;
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
+  render(delta) {
+    try {
+      const renderer = this.renderer;
+      const scene = this.scene;
+      /*
+      const delta = this.clock.getDelta();
+      const time = this.clock.getElapsedTime();
+      const tick = Math.floor(time * 60);
+      */
+
+      this.lights.rotationTime.y += 0.004;
+      this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
+      const camera = this.camera;
+      renderer.render(scene, camera);
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
+  animate() {
+    const renderer = this.renderer;
+    renderer.setAnimationLoop(() => {
+      this.render();
+    });
+  }
+
+  static init() {
+    [...document.querySelectorAll('[example-01]')].map(x => new World(x));
+  }
+
+}
+
+exports.default = World;
+
+},{"../services/rect":202,"../threejs/interactive/emittable":203,"../threejs/materials/materials":204}]},{},[199]);
 //# sourceMappingURL=main.js.map

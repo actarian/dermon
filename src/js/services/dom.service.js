@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
-import { combineLatest, fromEvent, range } from 'rxjs';
+import LocomotiveScroll from 'locomotive-scroll';
+import { combineLatest, fromEvent, fromEventPattern, range } from 'rxjs';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import { auditTime, distinctUntilChanged, filter, first, map, shareReplay, startWith } from 'rxjs/operators';
 import Rect from './rect';
@@ -453,7 +454,36 @@ DomService.windowRect$ = function() {
 	);
 }();
 DomService.rafAndRect$ = combineLatest(DomService.raf$, DomService.windowRect$);
-DomService.scroll$ = function() {
+DomService.locomotiveScrollEvent$ = function() {
+	const event = {
+		scrollTop: 0,
+		scrollLeft: 0,
+		direction: 0,
+		originalEvent: null,
+	};
+	const scroll = new LocomotiveScroll({
+		el: document.querySelector('#js-scroll'),
+		smooth: true,
+		getSpeed: true,
+		getDirection: true
+	});
+	return fromEventPattern((handler) => {
+		scroll.on('scroll', handler);
+	}, (handler) => {
+		// !!! scroll.removeListener('scroll', handler);
+	}).pipe(
+		map((instance) => {
+			// instance.direction, instance.speed
+			// const progress = instance.scroll.y / instance.limit;
+			event.scrollTop = instance.scroll.y;
+			event.direction = instance.direction;
+			return event;
+		}),
+		startWith(event),
+		shareReplay()
+	);
+};
+DomService.scrollEvent$ = function() {
 	const target = DomService.DEFAULT_SCROLL_TARGET;
 	let previousTop = DomService.getScrollTop(target);
 	const event = {
@@ -475,5 +505,9 @@ DomService.scroll$ = function() {
 		}),
 		startWith(event)
 	);
+};
+DomService.scroll$ = function() {
+	return DomService.locomotiveScrollEvent$();
+	// return this.scrollEvent$();
 }();
 DomService.scrollAndRect$ = combineLatest(DomService.scroll$, DomService.windowRect$);
