@@ -24,7 +24,7 @@ export default class Model {
 
 	load(callback) {
 		const loader = new THREE.FBXLoader();
-		loader.load('./threejs/models/tubetto.fbx', (object) => {
+		loader.load('./threejs/models/latte-corpo.fbx', (object) => {
 				object.traverse((child) => {
 					if (child instanceof THREE.Mesh) {
 						if (child.name === 'MODEL_PLASTIC_COSMETIC_TUBE_1483_PART_1_N3D') {
