@@ -47,7 +47,7 @@ export default class Model {
 		this.model = model;
 		world.scene.add(model);
 		domService.scrollIntersection$(node).subscribe(event => {
-			this.update(event.intersection, event.windowRect, world.viewRect);
+			this.update(event.intersection, event.windowRect, world.camera.viewRect);
 		});
 	}
 

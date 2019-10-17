@@ -17057,6 +17057,325 @@ exports.zipAll = zipAll_1.zipAll;
 },{"../internal/operators/audit":48,"../internal/operators/auditTime":49,"../internal/operators/buffer":50,"../internal/operators/bufferCount":51,"../internal/operators/bufferTime":52,"../internal/operators/bufferToggle":53,"../internal/operators/bufferWhen":54,"../internal/operators/catchError":55,"../internal/operators/combineAll":56,"../internal/operators/combineLatest":57,"../internal/operators/concat":58,"../internal/operators/concatAll":59,"../internal/operators/concatMap":60,"../internal/operators/concatMapTo":61,"../internal/operators/count":62,"../internal/operators/debounce":63,"../internal/operators/debounceTime":64,"../internal/operators/defaultIfEmpty":65,"../internal/operators/delay":66,"../internal/operators/delayWhen":67,"../internal/operators/dematerialize":68,"../internal/operators/distinct":69,"../internal/operators/distinctUntilChanged":70,"../internal/operators/distinctUntilKeyChanged":71,"../internal/operators/elementAt":72,"../internal/operators/endWith":73,"../internal/operators/every":74,"../internal/operators/exhaust":75,"../internal/operators/exhaustMap":76,"../internal/operators/expand":77,"../internal/operators/filter":78,"../internal/operators/finalize":79,"../internal/operators/find":80,"../internal/operators/findIndex":81,"../internal/operators/first":82,"../internal/operators/groupBy":83,"../internal/operators/ignoreElements":84,"../internal/operators/isEmpty":85,"../internal/operators/last":86,"../internal/operators/map":87,"../internal/operators/mapTo":88,"../internal/operators/materialize":89,"../internal/operators/max":90,"../internal/operators/merge":91,"../internal/operators/mergeAll":92,"../internal/operators/mergeMap":93,"../internal/operators/mergeMapTo":94,"../internal/operators/mergeScan":95,"../internal/operators/min":96,"../internal/operators/multicast":97,"../internal/operators/observeOn":98,"../internal/operators/onErrorResumeNext":99,"../internal/operators/pairwise":100,"../internal/operators/partition":101,"../internal/operators/pluck":102,"../internal/operators/publish":103,"../internal/operators/publishBehavior":104,"../internal/operators/publishLast":105,"../internal/operators/publishReplay":106,"../internal/operators/race":107,"../internal/operators/reduce":108,"../internal/operators/refCount":109,"../internal/operators/repeat":110,"../internal/operators/repeatWhen":111,"../internal/operators/retry":112,"../internal/operators/retryWhen":113,"../internal/operators/sample":114,"../internal/operators/sampleTime":115,"../internal/operators/scan":116,"../internal/operators/sequenceEqual":117,"../internal/operators/share":118,"../internal/operators/shareReplay":119,"../internal/operators/single":120,"../internal/operators/skip":121,"../internal/operators/skipLast":122,"../internal/operators/skipUntil":123,"../internal/operators/skipWhile":124,"../internal/operators/startWith":125,"../internal/operators/subscribeOn":126,"../internal/operators/switchAll":127,"../internal/operators/switchMap":128,"../internal/operators/switchMapTo":129,"../internal/operators/take":130,"../internal/operators/takeLast":131,"../internal/operators/takeUntil":132,"../internal/operators/takeWhile":133,"../internal/operators/tap":134,"../internal/operators/throttle":135,"../internal/operators/throttleTime":136,"../internal/operators/throwIfEmpty":137,"../internal/operators/timeInterval":138,"../internal/operators/timeout":139,"../internal/operators/timeoutWith":140,"../internal/operators/timestamp":141,"../internal/operators/toArray":142,"../internal/operators/window":143,"../internal/operators/windowCount":144,"../internal/operators/windowTime":145,"../internal/operators/windowToggle":146,"../internal/operators/windowWhen":147,"../internal/operators/withLatestFrom":148,"../internal/operators/zip":149,"../internal/operators/zipAll":150}],199:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _rect = _interopRequireDefault(require("../services/rect"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* jshint esversion: 6 */
+class Camera extends THREE.PerspectiveCamera {
+  constructor(container, scene) {
+    super(10, container.offsetWidth / container.offsetHeight, 0.01, 2000);
+    this.position.set(0, 0, 2);
+    this.target = new THREE.Vector3();
+    this.viewRect = new _rect.default();
+    this.zoom = 1;
+    this.updateProjectionMatrix();
+    scene.add(this);
+  }
+
+  setSize(w, h) {
+    this.zoom = 1;
+    this.aspect = w / h;
+    this.position.z = 180 / this.aspect;
+    const angle = this.fov * Math.PI / 180;
+    const height = Math.abs(this.position.z * Math.tan(angle / 2) * 2);
+    const viewRect = this.viewRect;
+    viewRect.width = height * this.aspect;
+    viewRect.height = height;
+    this.updateProjectionMatrix();
+  }
+
+}
+
+exports.default = Camera;
+
+},{"../services/rect":208}],200:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+const Ease = {
+  Linear: function (t) {
+    return t;
+  },
+  Quad: {
+    In: function (t) {
+      return t * t;
+    },
+    Out: function (t) {
+      return t * (2 - t);
+    },
+    InOut: function (t) {
+      if ((t *= 2) < 1) {
+        return 0.5 * t * t;
+      }
+
+      return -0.5 * (--t * (t - 2) - 1);
+    }
+  },
+  Cubic: {
+    In: function (t) {
+      return t * t * t;
+    },
+    Out: function (t) {
+      return --t * t * t + 1;
+    },
+    InOut: function (t) {
+      if ((t *= 2) < 1) {
+        return .5 * t * t * t;
+      }
+
+      return .5 * ((t -= 2) * t * t + 2);
+    }
+  },
+  Quart: {
+    In: function (t) {
+      return t * t * t * t;
+    },
+    Out: function (t) {
+      return 1 - --t * t * t * t;
+    },
+    InOut: function (t) {
+      if ((t *= 2) < 1) {
+        return .5 * t * t * t * t;
+      }
+
+      return .5 * ((t -= 2) * t * t * t - 2);
+    }
+  },
+  Quint: {
+    In: function (t) {
+      return t * t * t * t * t;
+    },
+    Out: function (t) {
+      return --t * t * t * t * t + 1;
+    },
+    InOut: function (t) {
+      if ((t *= 2) < 1) return 0.5 * t * t * t * t * t;
+      return 0.5 * ((t -= 2) * t * t * t * t + 2);
+    }
+  },
+  Sine: {
+    In: function (t) {
+      return 1 - Math.cos(t * Math.PI / 2);
+    },
+    Out: function (t) {
+      return Math.sin(t * Math.PI / 2);
+    },
+    InOut: function (t) {
+      return 0.5 * (1 - Math.cos(Math.PI * t));
+    }
+  },
+  Bounce: {
+    In: function (t) {
+      return 1 - outBounce(1 - t);
+    },
+    Out: function (t) {
+      if (t < 0.36363636363636365) {
+        return 7.5625 * t * t;
+      } else if (t < 0.7272727272727273) {
+        t = t - 0.5454545454545454;
+        return 7.5625 * t * t + 0.75;
+      } else if (t < 0.9090909090909091) {
+        t = t - 0.8181818181818182;
+        return 7.5625 * t * t + 0.9375;
+      } else {
+        t = t - 0.9545454545454546;
+        return 7.5625 * t * t + 0.984375;
+      }
+    },
+    InOut: function (t) {
+      if (t < 0.5) {
+        return Easings.InBounce(t * 2) * 0.5;
+      }
+
+      return Easings.OutBounce(t * 2 - 1) * 0.5 + 1 * 0.5;
+    }
+  },
+  Elastic: {
+    In: function (t, amplitude, period) {
+      if (typeof period == 'undefined') {
+        period = 0;
+      }
+
+      if (typeof amplitude == 'undefined') {
+        amplitude = 1;
+      }
+
+      var offset = 1.70158;
+      if (t == 0) return 0;
+      if (t == 1) return 1;
+
+      if (!period) {
+        period = .3;
+      }
+
+      if (amplitude < 1) {
+        amplitude = 1;
+        offset = period / 4;
+      } else {
+        offset = period / (2 * Math.PI) * Math.asin(1 / amplitude);
+      }
+
+      return -(amplitude * Math.pow(2, 10 * (t -= 1)) * Math.sin((t - offset) * (Math.PI * 2) / period));
+    },
+    Out: function (t, amplitude, period) {
+      if (typeof period == 'undefined') {
+        period = 0;
+      }
+
+      if (typeof amplitude == 'undefined') {
+        amplitude = 1;
+      }
+
+      var offset = 1.70158;
+      if (t == 0) return 0;
+      if (t == 1) return 1;
+
+      if (!period) {
+        period = .3;
+      }
+
+      if (amplitude < 1) {
+        amplitude = 1;
+        offset = period / 4;
+      } else {
+        offset = period / (2 * Math.PI) * Math.asin(1 / amplitude);
+      }
+
+      return amplitude * Math.pow(2, -10 * t) * Math.sin((t - offset) * (Math.PI * 2) / period) + 1;
+    },
+    InOut: function (t, amplitude, period) {
+      var offset;
+      t = t / 2 - 1; // escape early for 0 and 1
+
+      if (t === 0 || t === 1) {
+        return t;
+      }
+
+      if (!period) {
+        period = 0.44999999999999996;
+      }
+
+      if (!amplitude) {
+        amplitude = 1;
+        offset = period / 4;
+      } else {
+        offset = period / (Math.PI * 2.0) * Math.asin(1 / amplitude);
+      }
+
+      return amplitude * Math.pow(2, 10 * t) * Math.sin((t - offset) * (Math.PI * 2) / period) / -2;
+    }
+  },
+  Expo: {
+    In: function (t) {
+      return Math.pow(2, 10 * (t - 1));
+    },
+    Out: function (t) {
+      return -Math.pow(2, -10 * t) + 1;
+    },
+    InOut: function (t) {
+      if (t == 0) return 0;
+      if (t == 1) return 1;
+      if ((t /= .5) < 1) return .5 * Math.pow(2, 10 * (t - 1));
+      return .5 * (-Math.pow(2, -10 * --t) + 2);
+    }
+  },
+  Circ: {
+    In: function (t) {
+      return -1 * (Math.sqrt(1 - t * t) - 1);
+    },
+    Out: function (t) {
+      t = t - 1;
+      return Math.sqrt(1 - t * t);
+    },
+    InOut: function (t) {
+      var c = 1;
+      if ((t /= .5) < 1) return -.5 * (Math.sqrt(1 - t * t) - 1);
+      return .5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
+    }
+  },
+  Back: {
+    In: function (t, overshoot) {
+      if (!overshoot && overshoot !== 0) {
+        overshoot = 1.70158;
+      }
+
+      return 1 * t * t * ((overshoot + 1) * t - overshoot);
+    },
+    Out: function (t, overshoot) {
+      if (!overshoot && overshoot !== 0) {
+        overshoot = 1.70158;
+      }
+
+      t = t - 1;
+      return t * t * ((overshoot + 1) * t + overshoot) + 1;
+    },
+    InOut: function (t, overshoot) {
+      if (overshoot == undefined) overshoot = 1.70158;
+      if ((t /= .5) < 1) return .5 * (t * t * (((overshoot *= 1.525) + 1) * t - overshoot));
+      return .5 * ((t -= 2) * t * (((overshoot *= 1.525) + 1) * t + overshoot) + 2);
+    }
+  }
+};
+const outBounce = Ease.Bounce.Out;
+var _default = Ease;
+exports.default = _default;
+
+},{}],201:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/* jshint esversion: 6 */
+class Lights extends THREE.Group {
+  constructor(parent) {
+    super();
+    /*
+    this.rotationScroll = new THREE.Vector3();
+    this.rotationTime = new THREE.Vector3();
+    */
+
+    const light0 = new THREE.HemisphereLight(0x888888, 0x506071, 0.6);
+    light0.position.set(0, 0, 0);
+    parent.add(light0);
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.3);
+    light1.position.set(0, 20, 20);
+    this.add(light1);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
+    light2.position.set(-20, 10, 30);
+    this.add(light2);
+    /*
+    this.light0 = light0;
+    this.light1 = light1;
+    this.light2 = light2;
+    */
+
+    console.log(light0, light1, light2);
+    parent.add(this);
+  }
+
+  render(time) {
+    this.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 1.1);
+  }
+
+}
+
+exports.default = Lights;
+
+},{}],202:[function(require,module,exports){
+"use strict";
+
 var _model = _interopRequireDefault(require("./model/model"));
 
 var _dom = _interopRequireDefault(require("./services/dom.service"));
@@ -17076,20 +17395,23 @@ const example = document.querySelector('[example-01]');
 
 if (example) {
   const world = new _world.default(example);
+  /*
   domService.scroll$().subscribe(event => {
-    world.lights.rotationScroll.y = event.scrollTop * deg(0.01);
+  	world.lights.rotationScroll.y = event.scrollTop * deg(0.01);
   });
-  const models = [...document.querySelectorAll('[model]')].map(x => {
-    const model = new _model.default(x, world);
+  */
+
+  const models = [...document.querySelectorAll('[model]')].map(node => {
+    const model = new _model.default(node, world);
     return model;
   });
-  const titles = [...document.querySelectorAll('[title]')].map(x => {
-    const title = new _title.default(x);
+  const titles = [...document.querySelectorAll('[title]')].map(node => {
+    const title = new _title.default(node);
     return title;
   });
 }
 
-},{"./model/model":201,"./services/dom.service":202,"./title/title":205,"./world/world":206}],200:[function(require,module,exports){
+},{"./model/model":204,"./services/dom.service":207,"./title/title":210,"./world/world":211}],203:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17117,7 +17439,7 @@ class Materials {
     const loader = new THREE.TextureLoader();
     const textures = {
       tubetto: loader.load('threejs/models/latte-corpo-4.jpg', texture => {
-        texture.anisotropy = this.renderer.getMaxAnisotropy();
+        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
       })
     };
     this.loader = loader;
@@ -17128,7 +17450,7 @@ class Materials {
     let material;
     material = new THREE.MeshStandardMaterial({
       name: 'white',
-      color: 0xffffff,
+      color: 0xf4f4f6,
       roughness: 0.45,
       metalness: 0.01,
       envMapIntensity: 1
@@ -17140,7 +17462,7 @@ class Materials {
     let material;
     material = new THREE.MeshStandardMaterial({
       name: 'tubetto',
-      color: 0xffffff,
+      color: 0xf4f4f6,
       // 0xefeff8,
       roughness: 0.45,
       metalness: 0.01,
@@ -17179,7 +17501,7 @@ class Materials {
 
 exports.default = Materials;
 
-},{}],201:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17235,7 +17557,7 @@ class Model {
     this.model = model;
     world.scene.add(model);
     domService.scrollIntersection$(node).subscribe(event => {
-      this.update(event.intersection, event.windowRect, world.viewRect);
+      this.update(event.intersection, event.windowRect, world.camera.viewRect);
     });
   }
 
@@ -17275,7 +17597,60 @@ class Model {
 
 exports.default = Model;
 
-},{"../services/dom.service":202}],202:[function(require,module,exports){
+},{"../services/dom.service":207}],205:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/* jshint esversion: 6 */
+const MIN_DEVICE_PIXEL_RATIO = 1.25;
+
+class Renderer extends THREE.WebGLRenderer {
+  constructor(container) {
+    super({
+      antialias: true,
+      // premultipliedAlpha: true,
+      // preserveDrawingBuffer: false,
+      alpha: true
+    });
+    this.setClearColor(0xffffff, 0);
+    this.setPixelRatio(Math.max(window.devicePixelRatio, MIN_DEVICE_PIXEL_RATIO));
+    this.setSize(container.offsetWidth, container.offsetHeight);
+    container.appendChild(this.domElement);
+  }
+
+  static getRenderer(container) {
+    return new Renderer(container);
+  }
+
+}
+
+exports.default = Renderer;
+
+},{}],206:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/* jshint esversion: 6 */
+class Scene extends THREE.Scene {
+  constructor() {
+    super(); // this.background = new THREE.Color(0x00000000);
+    // this.background = new THREE.Color(0x404040);
+    // this.fog = new THREE.Fog(this.background, 10, 700);
+  }
+
+}
+
+exports.default = Scene;
+
+},{}],207:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17813,7 +18188,7 @@ DomService.scroll$ = function () {
 
 DomService.scrollAndRect$ = (0, _rxjs.combineLatest)(DomService.scroll$, DomService.windowRect$);
 
-},{"./rect":203,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],203:[function(require,module,exports){
+},{"./rect":208,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],208:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17969,7 +18344,7 @@ class Rect {
 
 exports.default = Rect;
 
-},{}],204:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18023,13 +18398,15 @@ class Emittable {
 
 exports.default = Emittable;
 
-},{}],205:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+var _ease = _interopRequireDefault(require("../ease/ease"));
 
 var _dom = _interopRequireDefault(require("../services/dom.service"));
 
@@ -18052,14 +18429,6 @@ class Title {
     });
   }
 
-  easeQuadOut(t) {
-    t = t * 2.0;
-    if (t === 0.0) return 0.0;
-    if (t === 1.0) return 1.0;
-    if (t < 1.0) return 0.5 * Math.pow(2.0, 10.0 * (t - 1.0));
-    return 0.5 * (-Math.pow(2.0, -10.0 * --t) + 2.0);
-  }
-
   update(intersection, rect, windowRect) {
     const node = this.node;
     const splitting = this.splitting;
@@ -18069,14 +18438,18 @@ class Title {
       // const index = getComputedStyle(char).getPropertyValue('--char-index');
       if (direction === 'left') {
         const i = splitting.chars.length - index;
-        let pow = this.easeQuadOut(1 - intersection.offset(i * h * 0.2, 2));
+
+        let pow = _ease.default.Expo.InOut(1 - intersection.offset(i * h * 0.2, 2));
+
         TweenMax.set(char, {
           x: -(5 + 0.1 * i) * h * pow,
           opacity: 1 - pow
         });
       } else {
         const i = index;
-        let pow = this.easeQuadOut(1 - intersection.offset(i * h * 0.2, 2));
+
+        let pow = _ease.default.Expo.InOut(1 - intersection.offset(i * h * 0.2, 2));
+
         TweenMax.set(char, {
           x: (5 + 0.1 * i) * h * pow,
           opacity: 1 - pow
@@ -18089,7 +18462,7 @@ class Title {
 
 exports.default = Title;
 
-},{"../services/dom.service":202}],206:[function(require,module,exports){
+},{"../ease/ease":200,"../services/dom.service":207}],211:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18097,18 +18470,21 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _camera = _interopRequireDefault(require("../camera/camera"));
+
+var _lights = _interopRequireDefault(require("../lights/lights"));
+
 var _materials = _interopRequireDefault(require("../materials/materials"));
 
-var _rect = _interopRequireDefault(require("../services/rect"));
+var _renderer = _interopRequireDefault(require("../renderer/renderer"));
+
+var _scene = _interopRequireDefault(require("../scene/scene"));
 
 var _emittable = _interopRequireDefault(require("../threejs/interactive/emittable"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* jshint esversion: 6 */
-const CAMERA_DISTANCE = 2;
-const MIN_DEVICE_PIXEL_RATIO = 1.25;
-
 class World extends _emittable.default {
   constructor(container, product) {
     super();
@@ -18119,104 +18495,28 @@ class World extends _emittable.default {
       height: 0,
       aspect: 0
     };
-    this.viewRect = new _rect.default();
-    const scene = this.scene = this.addScene();
-    const camera = this.camera = this.addCamera();
-    scene.add(camera);
-    const renderer = this.renderer = this.addRenderer();
+    const scene = this.scene = new _scene.default();
+    const camera = this.camera = new _camera.default(container, scene);
+    const renderer = this.renderer = new _renderer.default(container);
     const materials = this.materials = new _materials.default(renderer);
-    const lights = this.lights = this.addLights(scene);
-    /*
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-    */
-
-    this.onWindowResize = this.onWindowResize.bind(this);
-    this.onWindowResize();
-    window.addEventListener('resize', this.onWindowResize, false);
+    const lights = this.lights = new _lights.default(scene);
+    this.resize = this.resize.bind(this);
+    this.resize();
+    window.addEventListener('resize', this.resize, false);
     this.animate();
   }
 
-  addScene() {
-    const scene = new THREE.Scene(); // scene.background = new THREE.Color(0x00000000);
-    // scene.background = new THREE.Color(0x404040);
-
-    scene.fog = new THREE.Fog(scene.background, 10, 700);
-    return scene;
-  }
-
-  addCamera() {
-    const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.01, 2000);
-    camera.position.set(0, 0, 2);
-    camera.target = new THREE.Vector3();
-    camera.zoom = 1;
-    camera.updateProjectionMatrix();
-    return camera;
-  }
-
-  addRenderer() {
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      // premultipliedAlpha: true,
-      // preserveDrawingBuffer: false,
-      alpha: true
-    });
-    this.renderer = renderer;
-    renderer.setClearColor(0xffffff, 0);
-    renderer.setPixelRatio(Math.max(window.devicePixelRatio, MIN_DEVICE_PIXEL_RATIO));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    this.container.appendChild(renderer.domElement);
-    return renderer;
-  }
-
-  addLights(parent) {
-    const lights = new THREE.Group();
-    lights.rotationScroll = new THREE.Vector3();
-    lights.rotationTime = new THREE.Vector3();
-    const light0 = new THREE.HemisphereLight(0xffffff, 0x0f0f18, 0.3);
-    light0.position.set(0, 0, 0);
-    lights.light0 = light0;
-    parent.add(light0);
-    const light1 = new THREE.DirectionalLight(0xffffff, 0.3);
-    light1.position.set(0, 20, 20);
-    lights.light1 = light1;
-    lights.add(light1);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
-    light2.position.set(-20, 10, 30);
-    lights.light2 = light2;
-    lights.add(light2);
-    parent.add(lights);
-    console.log(light1, light2);
-    return lights;
-  }
-
-  onWindowResize() {
+  resize() {
     try {
-      const container = this.container,
-            renderer = this.renderer,
-            camera = this.camera;
+      const container = this.container;
+      const w = container.offsetWidth;
+      const h = container.offsetHeight;
       const size = this.size;
-      size.width = container.offsetWidth;
-      size.height = container.offsetHeight;
-      const w = size.width;
-      const h = size.height;
+      size.width = w;
+      size.height = h;
       size.aspect = w / h;
-
-      if (renderer) {
-        renderer.setSize(w, h);
-      }
-
-      if (camera) {
-        camera.zoom = 1;
-        camera.aspect = w / h;
-        camera.position.z = 180 / camera.aspect;
-        camera.updateProjectionMatrix();
-        const viewRect = this.viewRect;
-        const angle = camera.fov * Math.PI / 180;
-        const height = Math.abs(camera.position.z * Math.tan(angle / 2) * 2);
-        viewRect.width = height * camera.aspect;
-        viewRect.height = height;
-      }
+      this.renderer.setSize(w, h);
+      this.camera.setSize(w, h);
     } catch (error) {
       console.log('error', error);
     }
@@ -18226,15 +18526,13 @@ class World extends _emittable.default {
     try {
       const renderer = this.renderer;
       const scene = this.scene;
+      const time = this.clock.getElapsedTime();
       /*
       const delta = this.clock.getDelta();
+      const tick = Math.floor(time * 60);
       */
 
-      const time = this.clock.getElapsedTime();
-      const tick = Math.floor(time * 60);
-      this.lights.rotationTime.y += 0.004; // this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
-
-      this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 1.1);
+      this.lights.render(time);
       const camera = this.camera;
       renderer.render(scene, camera);
     } catch (error) {
@@ -18257,5 +18555,5 @@ class World extends _emittable.default {
 
 exports.default = World;
 
-},{"../materials/materials":200,"../services/rect":203,"../threejs/interactive/emittable":204}]},{},[199]);
+},{"../camera/camera":199,"../lights/lights":201,"../materials/materials":203,"../renderer/renderer":205,"../scene/scene":206,"../threejs/interactive/emittable":209}]},{},[202]);
 //# sourceMappingURL=main.js.map

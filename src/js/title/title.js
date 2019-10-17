@@ -1,5 +1,6 @@
 /* jshint esversion: 6 */
 
+import Ease from '../ease/ease';
 import DomService from '../services/dom.service';
 
 const domService = DomService.get();
@@ -19,14 +20,6 @@ export default class Title {
 		});
 	}
 
-	easeQuadOut(t) {
-		t = t * 2.0;
-		if (t === 0.0) return 0.0;
-		if (t === 1.0) return 1.0;
-		if (t < 1.0) return 0.5 * Math.pow(2.0, 10.0 * (t - 1.0));
-		return 0.5 * (-Math.pow(2.0, -10.0 * --t) + 2.0);
-	}
-
 	update(intersection, rect, windowRect) {
 		const node = this.node;
 		const splitting = this.splitting;
@@ -36,14 +29,14 @@ export default class Title {
 			// const index = getComputedStyle(char).getPropertyValue('--char-index');
 			if (direction === 'left') {
 				const i = (splitting.chars.length - index);
-				let pow = this.easeQuadOut(1 - (intersection.offset(i * h * 0.2, 2)));
+				let pow = Ease.Expo.InOut(1 - (intersection.offset(i * h * 0.2, 2)));
 				TweenMax.set(char, {
 					x: -(5 + 0.1 * i) * h * pow,
 					opacity: (1 - pow)
 				});
 			} else {
 				const i = index;
-				let pow = this.easeQuadOut(1 - (intersection.offset(i * h * 0.2, 2)));
+				let pow = Ease.Expo.InOut(1 - (intersection.offset(i * h * 0.2, 2)));
 				TweenMax.set(char, {
 					x: (5 + 0.1 * i) * h * pow,
 					opacity: (1 - pow)

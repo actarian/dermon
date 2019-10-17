@@ -20,7 +20,7 @@ export default class Materials {
 		const loader = new THREE.TextureLoader();
 		const textures = {
 			tubetto: loader.load('threejs/models/latte-corpo-4.jpg', (texture) => {
-				texture.anisotropy = this.renderer.getMaxAnisotropy();
+				texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
 			}),
 		};
 		this.loader = loader;
@@ -31,7 +31,7 @@ export default class Materials {
 		let material;
 		material = new THREE.MeshStandardMaterial({
 			name: 'white',
-			color: 0xffffff,
+			color: 0xf4f4f6,
 			roughness: 0.45,
 			metalness: 0.01,
 			envMapIntensity: 1,
@@ -43,7 +43,7 @@ export default class Materials {
 		let material;
 		material = new THREE.MeshStandardMaterial({
 			name: 'tubetto',
-			color: 0xffffff, // 0xefeff8,
+			color: 0xf4f4f6, // 0xefeff8,
 			roughness: 0.45,
 			metalness: 0.01,
 			map: this.textures.tubetto,

@@ -1,11 +1,11 @@
 /* jshint esversion: 6 */
 
+import Camera from '../camera/camera';
+import Lights from '../lights/lights';
 import Materials from '../materials/materials';
-import Rect from '../services/rect';
+import Renderer from '../renderer/renderer';
+import Scene from '../scene/scene';
 import Emittable from '../threejs/interactive/emittable';
-
-const CAMERA_DISTANCE = 2;
-const MIN_DEVICE_PIXEL_RATIO = 1.25;
 
 export default class World extends Emittable {
 
@@ -14,101 +14,28 @@ export default class World extends Emittable {
 		this.clock = new THREE.Clock();
 		this.container = container;
 		this.size = { width: 0, height: 0, aspect: 0 };
-		this.viewRect = new Rect();
-		const scene = this.scene = this.addScene();
-		const camera = this.camera = this.addCamera();
-		scene.add(camera);
-		const renderer = this.renderer = this.addRenderer();
+		const scene = this.scene = new Scene();
+		const camera = this.camera = new Camera(container, scene);
+		const renderer = this.renderer = new Renderer(container);
 		const materials = this.materials = new Materials(renderer);
-		const lights = this.lights = this.addLights(scene);
-		/*
-		this.onTouchStart = this.onTouchStart.bind(this);
-		this.onTouchEnd = this.onTouchEnd.bind(this);
-		*/
-		this.onWindowResize = this.onWindowResize.bind(this);
-		this.onWindowResize();
-		window.addEventListener('resize', this.onWindowResize, false);
+		const lights = this.lights = new Lights(scene);
+		this.resize = this.resize.bind(this);
+		this.resize();
+		window.addEventListener('resize', this.resize, false);
 		this.animate();
 	}
 
-	addScene() {
-		const scene = new THREE.Scene();
-		// scene.background = new THREE.Color(0x00000000);
-		// scene.background = new THREE.Color(0x404040);
-		scene.fog = new THREE.Fog(scene.background, 10, 700);
-		return scene;
-	}
-
-	addCamera() {
-		const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.01, 2000);
-		camera.position.set(0, 0, 2);
-		camera.target = new THREE.Vector3();
-		camera.zoom = 1;
-		camera.updateProjectionMatrix();
-		return camera;
-	}
-
-	addRenderer() {
-		const renderer = new THREE.WebGLRenderer({
-			antialias: true,
-			// premultipliedAlpha: true,
-			// preserveDrawingBuffer: false,
-			alpha: true,
-		});
-		this.renderer = renderer;
-		renderer.setClearColor(0xffffff, 0);
-		renderer.setPixelRatio(Math.max(window.devicePixelRatio, MIN_DEVICE_PIXEL_RATIO));
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		this.container.appendChild(renderer.domElement);
-		return renderer;
-	}
-
-	addLights(parent) {
-		const lights = new THREE.Group();
-		lights.rotationScroll = new THREE.Vector3();
-		lights.rotationTime = new THREE.Vector3();
-		const light0 = new THREE.HemisphereLight(0xffffff, 0x0f0f18, 0.3);
-		light0.position.set(0, 0, 0);
-		lights.light0 = light0;
-		parent.add(light0);
-		const light1 = new THREE.DirectionalLight(0xffffff, 0.3);
-		light1.position.set(0, 20, 20);
-		lights.light1 = light1;
-		lights.add(light1);
-		const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
-		light2.position.set(-20, 10, 30);
-		lights.light2 = light2;
-		lights.add(light2);
-		parent.add(lights);
-		console.log(light1, light2);
-		return lights;
-	}
-
-	onWindowResize() {
+	resize() {
 		try {
-			const container = this.container,
-				renderer = this.renderer,
-				camera = this.camera;
+			const container = this.container;
+			const w = container.offsetWidth;
+			const h = container.offsetHeight;
 			const size = this.size;
-			size.width = container.offsetWidth;
-			size.height = container.offsetHeight;
-			const w = size.width;
-			const h = size.height;
+			size.width = w;
+			size.height = h;
 			size.aspect = w / h;
-			if (renderer) {
-				renderer.setSize(w, h);
-			}
-			if (camera) {
-				camera.zoom = 1;
-				camera.aspect = w / h;
-				camera.position.z = 180 / camera.aspect;
-				camera.updateProjectionMatrix();
-				const viewRect = this.viewRect;
-				const angle = camera.fov * Math.PI / 180;
-				const height = Math.abs(camera.position.z * Math.tan(angle / 2) * 2);
-				viewRect.width = height * camera.aspect;
-				viewRect.height = height;
-			}
+			this.renderer.setSize(w, h);
+			this.camera.setSize(w, h);
 		} catch (error) {
 			console.log('error', error);
 		}
@@ -118,14 +45,12 @@ export default class World extends Emittable {
 		try {
 			const renderer = this.renderer;
 			const scene = this.scene;
+			const time = this.clock.getElapsedTime();
 			/*
 			const delta = this.clock.getDelta();
-			*/
-			const time = this.clock.getElapsedTime();
 			const tick = Math.floor(time * 60);
-			this.lights.rotationTime.y += 0.004;
-			// this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
-			this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 1.1);
+			*/
+			this.lights.render(time);
 			const camera = this.camera;
 			renderer.render(scene, camera);
 		} catch (error) {
