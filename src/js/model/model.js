@@ -58,12 +58,12 @@ export default class Model {
 		const ty = intersection.y * viewRect.height / windowRect.height - viewRect.height / 2;
 		// console.log(intersection.width, viewRect.width, windowRect.width);
 		const pow = 1 - intersection.pow.y;
-		const scale = Math.min(sx, sy);
+		const scale = Math.min(sx, sy) * 0.9;
 		const model = this.model;
 		model.scale.x = model.scale.y = model.scale.z = scale;
-		model.rotation.y = -deg(30) + deg(60) * pow;
+		model.rotation.y = -deg(15) + deg(30) * pow;
 		model.rotation.z = -deg(15) + deg(30) * pow;
-		model.position.x = tx + (-1 + 2 * pow) * scale;
+		model.position.x = tx + (1 - 2 * pow) * scale * 3;
 		model.position.y = -ty;
 		console.log('model', ty, scale);
 	}

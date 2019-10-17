@@ -17116,7 +17116,9 @@ class Materials {
   addTextures() {
     const loader = new THREE.TextureLoader();
     const textures = {
-      tubetto: loader.load('threejs/models/latte-corpo-4.jpg')
+      tubetto: loader.load('threejs/models/latte-corpo-4.jpg', texture => {
+        texture.anisotropy = this.renderer.getMaxAnisotropy();
+      })
     };
     this.loader = loader;
     return textures;
@@ -17127,7 +17129,7 @@ class Materials {
     material = new THREE.MeshStandardMaterial({
       name: 'white',
       color: 0xffffff,
-      roughness: 0.3,
+      roughness: 0.4,
       metalness: 0.01,
       envMapIntensity: 2
     });
@@ -17139,7 +17141,7 @@ class Materials {
     material = new THREE.MeshStandardMaterial({
       name: 'tubetto',
       color: 0xffffff,
-      roughness: 0.3,
+      roughness: 0.4,
       metalness: 0.01,
       map: this.textures.tubetto,
       envMapIntensity: 2
@@ -17245,12 +17247,12 @@ class Model {
     const ty = intersection.y * viewRect.height / windowRect.height - viewRect.height / 2; // console.log(intersection.width, viewRect.width, windowRect.width);
 
     const pow = 1 - intersection.pow.y;
-    const scale = Math.min(sx, sy);
+    const scale = Math.min(sx, sy) * 0.9;
     const model = this.model;
     model.scale.x = model.scale.y = model.scale.z = scale;
-    model.rotation.y = -deg(30) + deg(60) * pow;
+    model.rotation.y = -deg(15) + deg(30) * pow;
     model.rotation.z = -deg(15) + deg(30) * pow;
-    model.position.x = tx + (-1 + 2 * pow) * scale;
+    model.position.x = tx + (1 - 2 * pow) * scale * 3;
     model.position.y = -ty;
     console.log('model', ty, scale);
   }
@@ -18154,11 +18156,11 @@ class World extends _emittable.default {
     lights.light0 = light0;
     parent.add(light0);
     const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
-    light1.position.set(-10, 30, 100);
+    light1.position.set(-20, 30, 50);
     lights.light1 = light1;
     lights.add(light1);
     const light2 = new THREE.DirectionalLight(0xffffff, 0.1);
-    light2.position.set(10, -30, 100);
+    light2.position.set(20, -30, 50);
     lights.light2 = light2;
     lights.add(light2);
     parent.add(lights);

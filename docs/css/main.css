@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'Butler';
+  src: url("../fonts/butler_bold-webfont.woff2") format("woff2"), url("../fonts/butler_bold-webfont.woff") format("woff");
+  font-weight: 800;
+  font-style: normal; }
+
 * {
   -webkit-box-sizing: border-box;
           box-sizing: border-box; }
@@ -98,19 +104,19 @@ ng-transclude {
 
 ::-webkit-input-placeholder {
   /* Chrome/Opera/Safari */
-  font-family: "Sofia Pro", sans-serif; }
+  font-family: "Poppins"; }
 
 ::-moz-placeholder {
   /* Firefox 19+ */
-  font-family: "Sofia Pro", sans-serif; }
+  font-family: "Poppins"; }
 
 :-ms-input-placeholder {
   /* IE 10+ */
-  font-family: "Sofia Pro", sans-serif; }
+  font-family: "Poppins"; }
 
 :-moz-placeholder {
   /* Firefox 18- */
-  font-family: "Sofia Pro", sans-serif; }
+  font-family: "Poppins"; }
 
 .montaggi-list {
   list-style: none;
@@ -310,7 +316,7 @@ html.has-scroll-dragging {
     cursor: pointer; }
 
 body {
-  font-family: "Sofia Pro", sans-serif;
+  font-family: "Poppins";
   font-weight: 300;
   line-height: 1.77;
   background: #ffffff;
@@ -327,7 +333,7 @@ body {
 .h3,
 .h4,
 .h5 {
-  font-family: "Sofia Pro", sans-serif;
+  font-family: "Poppins";
   font-weight: 600; }
 
 .h1 {
@@ -416,7 +422,7 @@ button,
     border-radius: 500px;
     -webkit-transition: all ease-in-out .2s;
     transition: all ease-in-out .2s;
-    font-family: "Sofia Pro", sans-serif; }
+    font-family: "Poppins"; }
   .section--negative .btn--primary span {
     color: #ffffff;
     border-color: #ffffff; }
@@ -438,7 +444,7 @@ button,
     color: #fff;
     background: #475693;
     border-radius: 50px;
-    font-family: "Sofia Pro", sans-serif; }
+    font-family: "Poppins"; }
   .btn--secondary span, .btn--secondary:active span, .btn--secondary:focus span, .btn--secondary:hover span, .btn--secondary:visited span {
     color: #fff; }
   .section--negative .btn--secondary span {
@@ -2964,16 +2970,17 @@ main {
       text-align: center;
       font-size: 9vw;
       line-height: 0.8;
-      font-weight: 800;
+      font-weight: 600;
       color: white; }
   .home-02 .box {
     padding: 12vw 0; }
     .home-02 .box > .title {
       font-weight: 800;
-      font-size: 36px;
+      font-size: 48px;
       line-height: 1;
       margin-bottom: 0.7em;
-      color: #475693; }
+      color: #475693;
+      font-family: "Butler", serif; }
     .home-02 .box > .abstract {
       color: #1e2849; }
     .home-02 .box .btn--primary {

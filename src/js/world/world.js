@@ -72,11 +72,11 @@ export default class World extends Emittable {
 		lights.light0 = light0;
 		parent.add(light0);
 		const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
-		light1.position.set(-10, 30, 100);
+		light1.position.set(-20, 30, 50);
 		lights.light1 = light1;
 		lights.add(light1);
 		const light2 = new THREE.DirectionalLight(0xffffff, 0.1);
-		light2.position.set(10, -30, 100);
+		light2.position.set(20, -30, 50);
 		lights.light2 = light2;
 		lights.add(light2);
 		parent.add(lights);
