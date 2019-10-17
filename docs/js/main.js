@@ -17104,7 +17104,7 @@ class Materials {
     const textures = this.textures = this.addTextures();
     const white = this.white = this.getWhite();
     const tubetto = this.tubetto = this.getTubetto();
-    this.getEquirectangular('threejs/environment/environment-03.jpg', (texture, backgroundTexture) => {
+    this.getEquirectangular('threejs/environment/environment-04.jpg', (texture, backgroundTexture) => {
       textures.environment = texture;
       white.envMap = texture;
       white.needsUpdate = true;
@@ -17129,9 +17129,9 @@ class Materials {
     material = new THREE.MeshStandardMaterial({
       name: 'white',
       color: 0xffffff,
-      roughness: 0.4,
+      roughness: 0.45,
       metalness: 0.01,
-      envMapIntensity: 2
+      envMapIntensity: 1
     });
     return material;
   }
@@ -17141,10 +17141,11 @@ class Materials {
     material = new THREE.MeshStandardMaterial({
       name: 'tubetto',
       color: 0xffffff,
-      roughness: 0.4,
+      // 0xefeff8,
+      roughness: 0.45,
       metalness: 0.01,
       map: this.textures.tubetto,
-      envMapIntensity: 2
+      envMapIntensity: 1
     });
     return material;
   }
@@ -17250,11 +17251,10 @@ class Model {
     const scale = Math.min(sx, sy) * 0.9;
     const model = this.model;
     model.scale.x = model.scale.y = model.scale.z = scale;
-    model.rotation.y = -deg(15) + deg(30) * pow;
-    model.rotation.z = -deg(15) + deg(30) * pow;
-    model.position.x = tx + (1 - 2 * pow) * scale * 3;
-    model.position.y = -ty;
-    console.log('model', ty, scale);
+    model.rotation.y = -deg(20) + deg(40) * pow;
+    model.rotation.z = -deg(10) + deg(20) * pow;
+    model.position.x = tx - (1 - 2 * pow) * scale * 3;
+    model.position.y = -ty; // console.log('model', ty, scale);
   }
 
   cube(callback) {
@@ -17899,29 +17899,42 @@ class Rect {
 
   intersection(rect, mode = 1) {
     const intersection = this.intersection_ || (this.intersection_ = {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
       x: 0,
       y: 0,
       pow: {
         x: -1,
         y: -1
+      },
+      offset: function (offset, mode) {
+        // console.log(this);
+        let min, max;
+
+        if (mode === 1) {
+          min = -this.height;
+          max = this.rect.height + this.height;
+        } else {
+          min = this.rect.height * 0.1;
+          max = this.rect.height - this.height;
+        }
+
+        let pow = 1 - (this.top + offset - min) / max;
+        pow = Math.max(0, Math.min(1, pow));
+        return pow;
       }
     });
-    let min, max;
-
-    if (mode === 1) {
-      min = -this.height;
-      max = rect.height + this.height;
-    } else {
-      min = rect.height * 0.1;
-      max = rect.height - this.height;
-    }
-
-    const powy = 1 - (this.top - min) / max;
-    intersection.pow.y = Math.max(0, Math.min(1, powy));
-    intersection.x = this.left + this.width / 2;
-    intersection.y = this.top + this.height / 2;
+    intersection.left = this.left;
+    intersection.top = this.top;
     intersection.width = this.width;
     intersection.height = this.height;
+    intersection.x = this.left + this.width / 2;
+    intersection.y = this.top + this.height / 2;
+    intersection.rect = rect;
+    const pow = intersection.offset(0, mode);
+    intersection.pow.y = pow;
     return intersection;
   }
 
@@ -18039,8 +18052,15 @@ class Title {
     });
   }
 
+  easeQuadOut(t) {
+    t = t * 2.0;
+    if (t === 0.0) return 0.0;
+    if (t === 1.0) return 1.0;
+    if (t < 1.0) return 0.5 * Math.pow(2.0, 10.0 * (t - 1.0));
+    return 0.5 * (-Math.pow(2.0, -10.0 * --t) + 2.0);
+  }
+
   update(intersection, rect, windowRect) {
-    const pow = 1 - intersection.pow.y;
     const node = this.node;
     const splitting = this.splitting;
     const h = node.offsetHeight;
@@ -18049,14 +18069,16 @@ class Title {
       // const index = getComputedStyle(char).getPropertyValue('--char-index');
       if (direction === 'left') {
         const i = splitting.chars.length - index;
+        let pow = this.easeQuadOut(1 - intersection.offset(i * h * 0.2, 2));
         TweenMax.set(char, {
-          x: -5 * h * pow - i * h * pow,
+          x: -(5 + 0.1 * i) * h * pow,
           opacity: 1 - pow
         });
       } else {
         const i = index;
+        let pow = this.easeQuadOut(1 - intersection.offset(i * h * 0.2, 2));
         TweenMax.set(char, {
-          x: 5 * h * pow + i * h * pow,
+          x: (5 + 0.1 * i) * h * pow,
           opacity: 1 - pow
         });
       }
@@ -18085,7 +18107,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /* jshint esversion: 6 */
 const CAMERA_DISTANCE = 2;
-const MIN_DEVICE_PIXEL_RATIO = 1;
+const MIN_DEVICE_PIXEL_RATIO = 1.25;
 
 class World extends _emittable.default {
   constructor(container, product) {
@@ -18151,19 +18173,20 @@ class World extends _emittable.default {
     const lights = new THREE.Group();
     lights.rotationScroll = new THREE.Vector3();
     lights.rotationTime = new THREE.Vector3();
-    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.2);
+    const light0 = new THREE.HemisphereLight(0xffffff, 0x0f0f18, 0.3);
     light0.position.set(0, 0, 0);
     lights.light0 = light0;
     parent.add(light0);
-    const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
-    light1.position.set(-20, 30, 50);
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.3);
+    light1.position.set(0, 20, 20);
     lights.light1 = light1;
     lights.add(light1);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.1);
-    light2.position.set(20, -30, 50);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
+    light2.position.set(-20, 10, 30);
     lights.light2 = light2;
     lights.add(light2);
     parent.add(lights);
+    console.log(light1, light2);
     return lights;
   }
 
@@ -18211,7 +18234,7 @@ class World extends _emittable.default {
       const tick = Math.floor(time * 60);
       this.lights.rotationTime.y += 0.004; // this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
 
-      this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 0.1);
+      this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 1.1);
       const camera = this.camera;
       renderer.render(scene, camera);
     } catch (error) {

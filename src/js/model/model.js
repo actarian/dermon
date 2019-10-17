@@ -61,11 +61,11 @@ export default class Model {
 		const scale = Math.min(sx, sy) * 0.9;
 		const model = this.model;
 		model.scale.x = model.scale.y = model.scale.z = scale;
-		model.rotation.y = -deg(15) + deg(30) * pow;
-		model.rotation.z = -deg(15) + deg(30) * pow;
-		model.position.x = tx + (1 - 2 * pow) * scale * 3;
+		model.rotation.y = -deg(20) + deg(40) * pow;
+		model.rotation.z = -deg(10) + deg(20) * pow;
+		model.position.x = tx - (1 - 2 * pow) * scale * 3;
 		model.position.y = -ty;
-		console.log('model', ty, scale);
+		// console.log('model', ty, scale);
 	}
 
 	cube(callback) {

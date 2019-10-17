@@ -5,7 +5,7 @@ import Rect from '../services/rect';
 import Emittable from '../threejs/interactive/emittable';
 
 const CAMERA_DISTANCE = 2;
-const MIN_DEVICE_PIXEL_RATIO = 1;
+const MIN_DEVICE_PIXEL_RATIO = 1.25;
 
 export default class World extends Emittable {
 
@@ -67,19 +67,20 @@ export default class World extends Emittable {
 		const lights = new THREE.Group();
 		lights.rotationScroll = new THREE.Vector3();
 		lights.rotationTime = new THREE.Vector3();
-		const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.2);
+		const light0 = new THREE.HemisphereLight(0xffffff, 0x0f0f18, 0.3);
 		light0.position.set(0, 0, 0);
 		lights.light0 = light0;
 		parent.add(light0);
-		const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
-		light1.position.set(-20, 30, 50);
+		const light1 = new THREE.DirectionalLight(0xffffff, 0.3);
+		light1.position.set(0, 20, 20);
 		lights.light1 = light1;
 		lights.add(light1);
-		const light2 = new THREE.DirectionalLight(0xffffff, 0.1);
-		light2.position.set(20, -30, 50);
+		const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
+		light2.position.set(-20, 10, 30);
 		lights.light2 = light2;
 		lights.add(light2);
 		parent.add(lights);
+		console.log(light1, light2);
 		return lights;
 	}
 
@@ -124,7 +125,7 @@ export default class World extends Emittable {
 			const tick = Math.floor(time * 60);
 			this.lights.rotationTime.y += 0.004;
 			// this.lights.rotation.y = this.lights.rotationScroll.y + this.lights.rotationTime.y;
-			this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 0.1);
+			this.lights.rotation.y = THREE.Math.degToRad(15) * Math.cos(time * 1.1);
 			const camera = this.camera;
 			renderer.render(scene, camera);
 		} catch (error) {

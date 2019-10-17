@@ -76,21 +76,41 @@ export default class Rect {
 	}
 
 	intersection(rect, mode = 1) {
-		const intersection = this.intersection_ || (this.intersection_ = { x: 0, y: 0, pow: { x: -1, y: -1 } });
-		let min, max;
-		if (mode === 1) {
-			min = -this.height;
-			max = rect.height + this.height;
-		} else {
-			min = rect.height * 0.1;
-			max = rect.height - this.height;
-		}
-		const powy = 1 - (this.top - min) / max;
-		intersection.pow.y = Math.max(0, Math.min(1, powy));
-		intersection.x = this.left + this.width / 2;
-		intersection.y = this.top + this.height / 2;
+		const intersection = this.intersection_ || (this.intersection_ = {
+			left: 0,
+			top: 0,
+			width: 0,
+			height: 0,
+			x: 0,
+			y: 0,
+			pow: {
+				x: -1,
+				y: -1
+			},
+			offset: function(offset, mode) {
+				// console.log(this);
+				let min, max;
+				if (mode === 1) {
+					min = -this.height;
+					max = this.rect.height + this.height;
+				} else {
+					min = this.rect.height * 0.1;
+					max = this.rect.height - this.height;
+				}
+				let pow = 1 - (this.top + offset - min) / max;
+				pow = Math.max(0, Math.min(1, pow));
+				return pow;
+			}
+		});
+		intersection.left = this.left;
+		intersection.top = this.top;
 		intersection.width = this.width;
 		intersection.height = this.height;
+		intersection.x = this.left + this.width / 2;
+		intersection.y = this.top + this.height / 2;
+		intersection.rect = rect;
+		const pow = intersection.offset(0, mode);
+		intersection.pow.y = pow;
 		return intersection;
 	}
 

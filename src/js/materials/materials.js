@@ -7,7 +7,7 @@ export default class Materials {
 		const textures = this.textures = this.addTextures();
 		const white = this.white = this.getWhite();
 		const tubetto = this.tubetto = this.getTubetto();
-		this.getEquirectangular('threejs/environment/environment-03.jpg', (texture, backgroundTexture) => {
+		this.getEquirectangular('threejs/environment/environment-04.jpg', (texture, backgroundTexture) => {
 			textures.environment = texture;
 			white.envMap = texture;
 			white.needsUpdate = true;
@@ -32,9 +32,9 @@ export default class Materials {
 		material = new THREE.MeshStandardMaterial({
 			name: 'white',
 			color: 0xffffff,
-			roughness: 0.4,
+			roughness: 0.45,
 			metalness: 0.01,
-			envMapIntensity: 2,
+			envMapIntensity: 1,
 		});
 		return material;
 	}
@@ -43,11 +43,11 @@ export default class Materials {
 		let material;
 		material = new THREE.MeshStandardMaterial({
 			name: 'tubetto',
-			color: 0xffffff,
-			roughness: 0.4,
+			color: 0xffffff, // 0xefeff8,
+			roughness: 0.45,
 			metalness: 0.01,
 			map: this.textures.tubetto,
-			envMapIntensity: 2,
+			envMapIntensity: 1,
 		});
 		return material;
 	}
