@@ -30,7 +30,7 @@ export default class Materials {
 		material = new THREE.MeshStandardMaterial({
 			name: 'white',
 			color: 0xffffff,
-			roughness: 0.4,
+			roughness: 0.3,
 			metalness: 0.01,
 			envMapIntensity: 2,
 		});
@@ -42,7 +42,7 @@ export default class Materials {
 		material = new THREE.MeshStandardMaterial({
 			name: 'tubetto',
 			color: 0xffffff,
-			roughness: 0.4,
+			roughness: 0.3,
 			metalness: 0.01,
 			map: this.textures.tubetto,
 			envMapIntensity: 2,

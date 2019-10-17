@@ -17127,7 +17127,7 @@ class Materials {
     material = new THREE.MeshStandardMaterial({
       name: 'white',
       color: 0xffffff,
-      roughness: 0.4,
+      roughness: 0.3,
       metalness: 0.01,
       envMapIntensity: 2
     });
@@ -17139,7 +17139,7 @@ class Materials {
     material = new THREE.MeshStandardMaterial({
       name: 'tubetto',
       color: 0xffffff,
-      roughness: 0.4,
+      roughness: 0.3,
       metalness: 0.01,
       map: this.textures.tubetto,
       envMapIntensity: 2
@@ -18149,7 +18149,7 @@ class World extends _emittable.default {
     const lights = new THREE.Group();
     lights.rotationScroll = new THREE.Vector3();
     lights.rotationTime = new THREE.Vector3();
-    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.1);
+    const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.2);
     light0.position.set(0, 0, 0);
     lights.light0 = light0;
     parent.add(light0);

@@ -67,7 +67,7 @@ export default class World extends Emittable {
 		const lights = new THREE.Group();
 		lights.rotationScroll = new THREE.Vector3();
 		lights.rotationTime = new THREE.Vector3();
-		const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.1);
+		const light0 = new THREE.HemisphereLight(0xffffff, 0x666666, 0.2);
 		light0.position.set(0, 0, 0);
 		lights.light0 = light0;
 		parent.add(light0);
