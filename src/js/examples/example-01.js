@@ -5,7 +5,7 @@ import Emittable from '../threejs/interactive/emittable';
 import Materials from '../threejs/materials/materials';
 
 const CAMERA_DISTANCE = 2;
-const MIN_DEVICE_PIXEL_RATIO = 1.5;
+const MIN_DEVICE_PIXEL_RATIO = 1;
 
 export default class Example01 extends Emittable {
 
@@ -71,11 +71,11 @@ export default class Example01 extends Emittable {
 		lights.light0 = light0;
 		parent.add(light0);
 		const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
-		light1.position.set(-100, 20, -100);
+		light1.position.set(0, 30, -100);
 		lights.light1 = light1;
 		lights.add(light1);
 		const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-		light2.position.set(100, -20, 100);
+		light2.position.set(0, -30, 100);
 		lights.light2 = light2;
 		lights.add(light2);
 		parent.add(lights);
