@@ -23,7 +23,7 @@ export default class Title {
 	update(intersection, rect, windowRect) {
 		const node = this.node;
 		const splitting = this.splitting;
-		const h = node.offsetHeight;
+		const h = node.offsetHeight * 0.5;
 		const direction = node.getAttribute('title') || 'left';
 		const tweens = splitting.chars.map((char, index) => {
 			// const index = getComputedStyle(char).getPropertyValue('--char-index');

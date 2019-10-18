@@ -9,15 +9,15 @@ export default class Lights extends THREE.Group {
 		this.rotationTime = new THREE.Vector3();
 		*/
 
-		const light0 = new THREE.HemisphereLight(0x888888, 0x506071, 0.6);
+		const light0 = new THREE.HemisphereLight(0x888888, 0x506071, 1.3);
 		light0.position.set(0, 0, 0);
 		parent.add(light0);
 
-		const light1 = new THREE.DirectionalLight(0xffffff, 0.3);
-		light1.position.set(0, 20, 20);
+		const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
+		light1.position.set(20, 20, 20);
 		this.add(light1);
 
-		const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
+		const light2 = new THREE.DirectionalLight(0xffffff, 0.1);
 		light2.position.set(-20, 10, 30);
 		this.add(light2);
 
