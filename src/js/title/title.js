@@ -23,7 +23,7 @@ export default class Title {
 	update(intersection, rect, windowRect) {
 		const node = this.node;
 		const splitting = this.splitting;
-		const h = node.offsetHeight * 0.5;
+		const h = node.offsetHeight;
 		const direction = node.getAttribute('title') || 'left';
 		const tweens = splitting.chars.map((char, index) => {
 			// const index = getComputedStyle(char).getPropertyValue('--char-index');
@@ -31,14 +31,14 @@ export default class Title {
 				const i = (splitting.chars.length - index);
 				let pow = Ease.Expo.InOut(1 - (intersection.offset(i * h * 0.2, 2)));
 				TweenMax.set(char, {
-					x: -(5 + 0.1 * i) * h * pow,
+					x: -(5 + 0.1 * i) * (h * 0.1) * pow,
 					opacity: (1 - pow)
 				});
 			} else {
 				const i = index;
 				let pow = Ease.Expo.InOut(1 - (intersection.offset(i * h * 0.2, 2)));
 				TweenMax.set(char, {
-					x: (5 + 0.1 * i) * h * pow,
+					x: (5 + 0.1 * i) * (h * 0.1) * pow,
 					opacity: (1 - pow)
 				});
 			}

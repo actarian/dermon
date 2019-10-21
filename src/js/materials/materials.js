@@ -1,25 +1,33 @@
 /* jshint esversion: 6 */
 
+const ENV_MAP_INTENSITY = 1.5;
+
 export default class Materials {
 
 	constructor(renderer) {
 		this.renderer = renderer;
 		const textures = this.textures = this.addTextures();
 		const white = this.white = this.getWhite();
-		const tubetto = this.tubetto = this.getTubetto();
-		this.getEquirectangular('threejs/environment/environment-04.jpg', (texture, backgroundTexture) => {
+		const docciaSchiuma = this.docciaSchiuma = this.getDocciaSchiuma();
+		const latteCorpo = this.latteCorpo = this.getLatteCorpo();
+		this.getEquirectangular('three/environment/environment-04.jpg', (texture, backgroundTexture) => {
 			textures.environment = texture;
 			white.envMap = texture;
 			white.needsUpdate = true;
-			tubetto.envMap = texture;
-			tubetto.needsUpdate = true;
+			docciaSchiuma.envMap = texture;
+			docciaSchiuma.needsUpdate = true;
+			latteCorpo.envMap = texture;
+			latteCorpo.needsUpdate = true;
 		});
 	}
 
 	addTextures() {
 		const loader = new THREE.TextureLoader();
 		const textures = {
-			tubetto: loader.load('threejs/models/latte-corpo-4.jpg', (texture) => {
+			docciaSchiuma: loader.load('three/models/doccia-schiuma/doccia-schiuma.jpg', (texture) => {
+				texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+			}),
+			latteCorpo: loader.load('three/models/latte-corpo/latte-corpo.jpg', (texture) => {
 				texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
 			}),
 		};
@@ -34,20 +42,33 @@ export default class Materials {
 			color: 0xf4f4f6,
 			roughness: 0.45,
 			metalness: 0.01,
-			envMapIntensity: 1,
+			envMapIntensity: ENV_MAP_INTENSITY,
 		});
 		return material;
 	}
 
-	getTubetto() {
+	getDocciaSchiuma() {
 		let material;
 		material = new THREE.MeshStandardMaterial({
-			name: 'tubetto',
+			name: 'docciaSchiuma',
 			color: 0xf4f4f6, // 0xefeff8,
 			roughness: 0.45,
 			metalness: 0.01,
-			map: this.textures.tubetto,
-			envMapIntensity: 1,
+			map: this.textures.docciaSchiuma,
+			envMapIntensity: ENV_MAP_INTENSITY,
+		});
+		return material;
+	}
+
+	getLatteCorpo() {
+		let material;
+		material = new THREE.MeshStandardMaterial({
+			name: 'latteCorpo',
+			color: 0xf4f4f6, // 0xefeff8,
+			roughness: 0.45,
+			metalness: 0.01,
+			map: this.textures.latteCorpo,
+			envMapIntensity: ENV_MAP_INTENSITY,
 		});
 		return material;
 	}

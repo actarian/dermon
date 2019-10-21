@@ -17346,9 +17346,10 @@ class Lights extends THREE.Group {
     this.rotationTime = new THREE.Vector3();
     */
 
-    const light0 = new THREE.HemisphereLight(0x888888, 0x506071, 1.3);
+    const light0 = new THREE.HemisphereLight(0xffffff, 0x5e6770, 1.0);
     light0.position.set(0, 0, 0);
     parent.add(light0);
+    return;
     const light1 = new THREE.DirectionalLight(0xffffff, 0.1);
     light1.position.set(20, 20, 20);
     this.add(light1);
@@ -17420,25 +17421,33 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 /* jshint esversion: 6 */
+const ENV_MAP_INTENSITY = 1.5;
+
 class Materials {
   constructor(renderer) {
     this.renderer = renderer;
     const textures = this.textures = this.addTextures();
     const white = this.white = this.getWhite();
-    const tubetto = this.tubetto = this.getTubetto();
-    this.getEquirectangular('threejs/environment/environment-04.jpg', (texture, backgroundTexture) => {
+    const docciaSchiuma = this.docciaSchiuma = this.getDocciaSchiuma();
+    const latteCorpo = this.latteCorpo = this.getLatteCorpo();
+    this.getEquirectangular('three/environment/environment-04.jpg', (texture, backgroundTexture) => {
       textures.environment = texture;
       white.envMap = texture;
       white.needsUpdate = true;
-      tubetto.envMap = texture;
-      tubetto.needsUpdate = true;
+      docciaSchiuma.envMap = texture;
+      docciaSchiuma.needsUpdate = true;
+      latteCorpo.envMap = texture;
+      latteCorpo.needsUpdate = true;
     });
   }
 
   addTextures() {
     const loader = new THREE.TextureLoader();
     const textures = {
-      tubetto: loader.load('threejs/models/latte-corpo-4.jpg', texture => {
+      docciaSchiuma: loader.load('three/models/doccia-schiuma/doccia-schiuma.jpg', texture => {
+        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      }),
+      latteCorpo: loader.load('three/models/latte-corpo/latte-corpo.jpg', texture => {
         texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
       })
     };
@@ -17453,21 +17462,35 @@ class Materials {
       color: 0xf4f4f6,
       roughness: 0.45,
       metalness: 0.01,
-      envMapIntensity: 1
+      envMapIntensity: ENV_MAP_INTENSITY
     });
     return material;
   }
 
-  getTubetto() {
+  getDocciaSchiuma() {
     let material;
     material = new THREE.MeshStandardMaterial({
-      name: 'tubetto',
+      name: 'docciaSchiuma',
       color: 0xf4f4f6,
       // 0xefeff8,
       roughness: 0.45,
       metalness: 0.01,
-      map: this.textures.tubetto,
-      envMapIntensity: 1
+      map: this.textures.docciaSchiuma,
+      envMapIntensity: ENV_MAP_INTENSITY
+    });
+    return material;
+  }
+
+  getLatteCorpo() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'latteCorpo',
+      color: 0xf4f4f6,
+      // 0xefeff8,
+      roughness: 0.45,
+      metalness: 0.01,
+      map: this.textures.latteCorpo,
+      envMapIntensity: ENV_MAP_INTENSITY
     });
     return material;
   }
@@ -17509,6 +17532,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _ease = _interopRequireDefault(require("../ease/ease"));
+
 var _dom = _interopRequireDefault(require("../services/dom.service"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -17522,6 +17547,7 @@ class Model {
   constructor(node, world) {
     this.node = node;
     this.world = world;
+    this.key = node.getAttribute('model');
     this.load(model => {
       this.set(model);
     });
@@ -17529,20 +17555,42 @@ class Model {
 
   load(callback) {
     const loader = new THREE.FBXLoader();
-    loader.load('./threejs/models/latte-corpo-6.fbx', object => {
+    loader.load('./three/models/' + this.key + '/' + this.key + '.fbx', object => {
       object.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          if (child.name === 'model') {
-            child.material = this.world.materials.tubetto;
-          } else {
-            child.material = this.world.materials.white;
+          const white = this.world.materials.white;
+          let material;
+
+          switch (this.key) {
+            case 'doccia-schiuma':
+              material = this.world.materials.docciaSchiuma;
+
+              if (child.name === 'corpo') {
+                child.material = material;
+              } else {
+                child.material = white;
+              }
+
+              break;
+
+            case 'latte-corpo':
+              material = this.world.materials.latteCorpo;
+
+              if (child.name === 'model') {
+                child.material = material;
+              } else {
+                child.material = white;
+              }
+
+              break;
           }
 
-          console.log(child.name, child.material);
+          console.log(this.key, '>', child.name, child.material);
         }
       });
 
       if (typeof callback === 'function') {
+        console.log(this.key, '>', object);
         callback(object);
       }
     }, xhr => {// console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
@@ -17569,14 +17617,36 @@ class Model {
     const tx = intersection.x * viewRect.width / windowRect.width - viewRect.width / 2;
     const ty = intersection.y * viewRect.height / windowRect.height - viewRect.height / 2; // console.log(intersection.width, viewRect.width, windowRect.width);
 
-    const pow = 1 - intersection.pow.y;
-    const scale = Math.min(sx, sy) * 0.9;
     const model = this.model;
-    model.scale.x = model.scale.y = model.scale.z = scale;
-    model.rotation.y = -deg(20) + deg(40) * pow;
-    model.rotation.z = -deg(10) + deg(20) * pow;
-    model.position.x = tx - (1 - 2 * pow) * scale * 3;
-    model.position.y = -ty; // console.log('model', ty, scale);
+    let pow, scale;
+
+    switch (this.key) {
+      case 'doccia-schiuma':
+        pow = _ease.default.Quad.InOut(1 - intersection.offset(500));
+        scale = Math.min(sx, sy) * 0.8;
+        model.scale.x = model.scale.y = model.scale.z = scale; // model.rotation.y = -deg(20) + deg(40) * pow;
+        // model.rotation.z = -deg(10) + deg(20) * pow;
+        // model.position.x = tx - (1 - 2 * pow) * scale * 3;
+        // model.position.y = -ty;
+
+        model.rotation.x = -deg(5);
+        model.rotation.y = deg(5);
+        model.rotation.z = deg(35) + deg(20) - deg(40) * pow;
+        model.position.x = tx;
+        model.position.y = -ty + (-20 + 20 * pow) * scale;
+        break;
+
+      case 'latte-corpo':
+        pow = _ease.default.Quad.Out(1 - intersection.pow.y);
+        scale = Math.min(sx, sy) * 0.9;
+        model.scale.x = model.scale.y = model.scale.z = scale;
+        model.rotation.y = -deg(20) + deg(40) * pow;
+        model.rotation.z = -deg(10) + deg(20) * pow;
+        model.position.x = tx - (1 - 2 * pow) * scale * 3;
+        model.position.y = -ty;
+        break;
+    } // console.log('model', ty, scale);
+
   }
 
   cube(callback) {
@@ -17597,7 +17667,7 @@ class Model {
 
 exports.default = Model;
 
-},{"../services/dom.service":207}],205:[function(require,module,exports){
+},{"../ease/ease":200,"../services/dom.service":207}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18432,7 +18502,7 @@ class Title {
   update(intersection, rect, windowRect) {
     const node = this.node;
     const splitting = this.splitting;
-    const h = node.offsetHeight * 0.5;
+    const h = node.offsetHeight;
     const direction = node.getAttribute('title') || 'left';
     const tweens = splitting.chars.map((char, index) => {
       // const index = getComputedStyle(char).getPropertyValue('--char-index');
@@ -18442,7 +18512,7 @@ class Title {
         let pow = _ease.default.Expo.InOut(1 - intersection.offset(i * h * 0.2, 2));
 
         TweenMax.set(char, {
-          x: -(5 + 0.1 * i) * h * pow,
+          x: -(5 + 0.1 * i) * (h * 0.1) * pow,
           opacity: 1 - pow
         });
       } else {
@@ -18451,7 +18521,7 @@ class Title {
         let pow = _ease.default.Expo.InOut(1 - intersection.offset(i * h * 0.2, 2));
 
         TweenMax.set(char, {
-          x: (5 + 0.1 * i) * h * pow,
+          x: (5 + 0.1 * i) * (h * 0.1) * pow,
           opacity: 1 - pow
         });
       }

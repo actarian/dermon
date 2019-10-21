@@ -1,6 +1,8 @@
 /* jshint esversion: 6 */
 
+import Ease from '../ease/ease';
 import DomService from '../services/dom.service';
+
 const deg = THREE.Math.degToRad;
 
 const domService = DomService.get();
@@ -10,6 +12,7 @@ export default class Model {
 	constructor(node, world) {
 		this.node = node;
 		this.world = world;
+		this.key = node.getAttribute('model');
 		this.load((model) => {
 			this.set(model);
 		});
@@ -17,18 +20,34 @@ export default class Model {
 
 	load(callback) {
 		const loader = new THREE.FBXLoader();
-		loader.load('./threejs/models/latte-corpo-6.fbx', (object) => {
+		loader.load('./three/models/' + this.key + '/' + this.key + '.fbx', (object) => {
 				object.traverse((child) => {
 					if (child instanceof THREE.Mesh) {
-						if (child.name === 'model') {
-							child.material = this.world.materials.tubetto;
-						} else {
-							child.material = this.world.materials.white;
+						const white = this.world.materials.white;
+						let material;
+						switch (this.key) {
+							case 'doccia-schiuma':
+								material = this.world.materials.docciaSchiuma;
+								if (child.name === 'corpo') {
+									child.material = material;
+								} else {
+									child.material = white;
+								}
+								break;
+							case 'latte-corpo':
+								material = this.world.materials.latteCorpo;
+								if (child.name === 'model') {
+									child.material = material;
+								} else {
+									child.material = white;
+								}
+								break;
 						}
-						console.log(child.name, child.material);
+						console.log(this.key, '>', child.name, child.material);
 					}
 				});
 				if (typeof callback === 'function') {
+					console.log(this.key, '>', object);
 					callback(object);
 				}
 			},
@@ -57,14 +76,34 @@ export default class Model {
 		const tx = intersection.x * viewRect.width / windowRect.width - viewRect.width / 2;
 		const ty = intersection.y * viewRect.height / windowRect.height - viewRect.height / 2;
 		// console.log(intersection.width, viewRect.width, windowRect.width);
-		const pow = 1 - intersection.pow.y;
-		const scale = Math.min(sx, sy) * 0.9;
 		const model = this.model;
-		model.scale.x = model.scale.y = model.scale.z = scale;
-		model.rotation.y = -deg(20) + deg(40) * pow;
-		model.rotation.z = -deg(10) + deg(20) * pow;
-		model.position.x = tx - (1 - 2 * pow) * scale * 3;
-		model.position.y = -ty;
+
+		let pow, scale;
+		switch (this.key) {
+			case 'doccia-schiuma':
+				pow = Ease.Quad.InOut(1 - intersection.offset(500));
+				scale = Math.min(sx, sy) * 0.8;
+				model.scale.x = model.scale.y = model.scale.z = scale;
+				// model.rotation.y = -deg(20) + deg(40) * pow;
+				// model.rotation.z = -deg(10) + deg(20) * pow;
+				// model.position.x = tx - (1 - 2 * pow) * scale * 3;
+				// model.position.y = -ty;
+				model.rotation.x = -deg(5);
+				model.rotation.y = deg(5);
+				model.rotation.z = deg(35) + deg(20) - deg(40) * pow;
+				model.position.x = tx;
+				model.position.y = -ty + (-20 + 20 * pow) * scale;
+				break;
+			case 'latte-corpo':
+				pow = Ease.Quad.Out(1 - intersection.pow.y);
+				scale = Math.min(sx, sy) * 0.9;
+				model.scale.x = model.scale.y = model.scale.z = scale;
+				model.rotation.y = -deg(20) + deg(40) * pow;
+				model.rotation.z = -deg(10) + deg(20) * pow;
+				model.position.x = tx - (1 - 2 * pow) * scale * 3;
+				model.position.y = -ty;
+				break;
+		}
 		// console.log('model', ty, scale);
 	}
 
