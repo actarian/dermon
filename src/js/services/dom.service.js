@@ -456,6 +456,7 @@ DomService.windowRect$ = function() {
 DomService.rafAndRect$ = combineLatest(DomService.raf$, DomService.windowRect$);
 DomService.locomotiveScrollEvent$ = function() {
 	const event = {
+		speed: 0,
 		scrollTop: 0,
 		scrollLeft: 0,
 		direction: 0,
@@ -475,6 +476,7 @@ DomService.locomotiveScrollEvent$ = function() {
 		map((instance) => {
 			// instance.direction, instance.speed
 			// const progress = instance.scroll.y / instance.limit;
+			event.speed = instance.speed;
 			event.scrollTop = instance.scroll.y;
 			event.direction = instance.direction;
 			return event;

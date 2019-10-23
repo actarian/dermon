@@ -8,7 +8,49 @@ main {
 	position: relative;
 }
 
-.home-01 {
+.model-container {
+	position: relative;
+}
+
+.world {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	left: 0;
+	top: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+img {
+	max-width: 100%;
+}
+
+[title] {
+
+	.word,
+	.char {
+		display: inline-block;
+	}
+}
+
+[decor] {
+	position: absolute;
+	width: 256px;
+	height: 256px;
+	top: 100px;
+	left: 60%;
+	transform: translateX(-50%) translateY(-50%);
+	pointer-events: none;
+	// background: rgba(0, 0, 255, 0.2);
+}
+
+.section-doccia-schiuma {
+
+	[decor] {
+		left: 85%;
+		top: 200px;
+	}
 
 	[model] {
 		position: absolute;
@@ -24,7 +66,134 @@ main {
 
 }
 
-.home-02 {
+.section-gel-mousse-doccia {
+	background: #adc6df;
+	background: linear-gradient(to bottom, #adc6df 0%, #ffffff 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#adc6df', endColorstr='#ffffff', GradientType=0);
+
+	&>img {
+		position: relative;
+	}
+
+	.container {
+		padding-top: 100px;
+		padding-bottom: 100px;
+
+		&>.title {
+			position: relative;
+			text-align: center;
+			font-size: 9vw;
+			line-height: 0.8;
+			font-weight: 600;
+			color: white;
+
+			@include media-breakpoint-up(xl) {
+				font-size: 172px;
+			}
+		}
+	}
+
+	.box {
+		padding: 15vh 0;
+
+		&>.title {
+			font-weight: 800;
+			font-size: 48px;
+			line-height: 1.25;
+			margin-bottom: 0.7em;
+			color: #475693;
+			font-family: $font-secondary;
+		}
+
+		&>.abstract {
+			color: #1e2849;
+		}
+
+		& .btn--primary {
+			color: #475693;
+			border-color: #475693;
+		}
+	}
+
+	[decor] {
+		left: 35%;
+		top: calc(100% - 100px);
+	}
+
+	[model] {
+		position: relative;
+		width: 100%;
+		padding-bottom: 200%;
+		pointer-events: none;
+		// background: rgba(255, 0, 0, 0.2);
+	}
+
+}
+
+.section-intimo-attivo {
+
+	&>img {
+		position: relative;
+	}
+
+	.container {
+		padding-top: 100px;
+		padding-bottom: 100px;
+
+		&>.title {
+			position: relative;
+			text-align: center;
+			font-size: 9vw;
+			line-height: 0.8;
+			font-weight: 600;
+			color: #cce2f3;
+
+			@include media-breakpoint-up(xl) {
+				font-size: 172px;
+			}
+		}
+	}
+
+	.box {
+		padding: 15vh 0;
+
+		&>.title {
+			font-weight: 800;
+			font-size: 48px;
+			line-height: 1.25;
+			margin-bottom: 0.7em;
+			color: #475693;
+			font-family: $font-secondary;
+		}
+
+		&>.abstract {
+			color: #1e2849;
+		}
+
+		& .btn--primary {
+			color: #475693;
+			border-color: #475693;
+		}
+	}
+
+	[decor] {
+		left: 60%;
+		top: 200px;
+	}
+
+	[model] {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		// background: rgba(255, 0, 0, 0.2);
+	}
+
+}
+
+.section-latte-corpo {
 	background: #adc6df;
 	background: linear-gradient(to bottom, #adc6df 0%, #ffffff 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#adc6df', endColorstr='#ffffff', GradientType=0);
@@ -44,16 +213,20 @@ main {
 			line-height: 0.8;
 			font-weight: 600;
 			color: white;
+
+			@include media-breakpoint-up(xl) {
+				font-size: 172px;
+			}
 		}
 	}
 
 	.box {
-		padding: 12vw 0;
+		padding: 15vh 0;
 
 		&>.title {
 			font-weight: 800;
 			font-size: 48px;
-			line-height: 1;
+			line-height: 1.25;
 			margin-bottom: 0.7em;
 			color: #475693;
 			font-family: $font-secondary;
@@ -69,41 +242,23 @@ main {
 		}
 	}
 
-	[model] {
+	[decor] {
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 100%;
-		height: 100%;
-		max-height: 70vh;
-		max-width: 70vw;
+		width: 230px;
+		height: 170px;
+		top: 100px;
+		left: 60%;
 		transform: translateX(-50%) translateY(-50%);
+		pointer-events: none;
+		// background: rgba(0, 0, 255, 0.2);
+	}
+
+	[model] {
+		position: relative;
+		width: 100%;
+		padding-bottom: 200%;
 		pointer-events: none;
 		// background: rgba(255, 0, 0, 0.2);
 	}
 
-}
-
-.world {
-	position: fixed;
-	width: 100%;
-	height: 100vh;
-	max-width: 1920px;
-	transform: translateX(-50%);
-	top: 0;
-	left: 50%;
-	z-index: 1;
-	pointer-events: none;
-}
-
-img {
-	max-width: 100%;
-}
-
-[title] {
-
-	.word,
-	.char {
-		display: inline-block;
-	}
 }

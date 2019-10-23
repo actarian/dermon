@@ -9,7 +9,7 @@ import Emittable from '../threejs/interactive/emittable';
 
 export default class World extends Emittable {
 
-	constructor(container, product) {
+	constructor(container, callback) {
 		super();
 		this.clock = new THREE.Clock();
 		this.container = container;
@@ -17,8 +17,12 @@ export default class World extends Emittable {
 		const scene = this.scene = new Scene();
 		const camera = this.camera = new Camera(container, scene);
 		const renderer = this.renderer = new Renderer(container);
-		const materials = this.materials = new Materials(renderer);
 		const lights = this.lights = new Lights(scene);
+		const materials = this.materials = new Materials(renderer, (materials) => {
+			if (typeof callback === 'function') {
+				callback(this);
+			}
+		});
 		this.resize = this.resize.bind(this);
 		this.resize();
 		window.addEventListener('resize', this.resize, false);
@@ -50,6 +54,11 @@ export default class World extends Emittable {
 			const delta = this.clock.getDelta();
 			const tick = Math.floor(time * 60);
 			*/
+			this.scene.children.forEach(x => {
+				if (typeof x.userData.render === 'function') {
+					x.userData.render();
+				}
+			});
 			this.lights.render(time);
 			const camera = this.camera;
 			renderer.render(scene, camera);

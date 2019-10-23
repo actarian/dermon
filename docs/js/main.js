@@ -17072,7 +17072,7 @@ class Camera extends THREE.PerspectiveCamera {
     super(10, container.offsetWidth / container.offsetHeight, 0.01, 2000);
     this.position.set(0, 0, 2);
     this.target = new THREE.Vector3();
-    this.viewRect = new _rect.default();
+    this.cameraRect = new _rect.default();
     this.zoom = 1;
     this.updateProjectionMatrix();
     scene.add(this);
@@ -17084,9 +17084,9 @@ class Camera extends THREE.PerspectiveCamera {
     this.position.z = 180 / this.aspect;
     const angle = this.fov * Math.PI / 180;
     const height = Math.abs(this.position.z * Math.tan(angle / 2) * 2);
-    const viewRect = this.viewRect;
-    viewRect.width = height * this.aspect;
-    viewRect.height = height;
+    const cameraRect = this.cameraRect;
+    cameraRect.width = height * this.aspect;
+    cameraRect.height = height;
     this.updateProjectionMatrix();
   }
 
@@ -17094,13 +17094,227 @@ class Camera extends THREE.PerspectiveCamera {
 
 exports.default = Camera;
 
-},{"../services/rect":208}],200:[function(require,module,exports){
+},{"../services/rect":209}],200:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+var _rxjs = require("rxjs");
+
+var _ease = _interopRequireDefault(require("../ease/ease"));
+
+var _dom = _interopRequireDefault(require("../services/dom.service"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* jshint esversion: 6 */
+const USE_SHADER_MATERIAL = false;
+const vertexShader =
+/* glsl */
+`
+varying vec2 vUv;
+uniform float uTime;
+uniform float uPow;
+uniform float uSpeed;
+
+void main() {
+	vUv = uv;
+	vec3 vPosition = position;
+	// vPosition.y += cos(position.x + uTime * 0.001) * (uSpeed * 0.05);
+	gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
+}
+`;
+const fragmentShader =
+/* glsl */
+`
+uniform sampler2D uImage;
+uniform float uOpacity;
+varying vec2 vUv;
+void main() {
+	vec4 color = texture2D(uImage, vUv);
+	color.a *= uOpacity;
+	if (color.a < 0.01) discard;
+	gl_FragColor = color;
+	gl_FragColor.rgb *= gl_FragColor.a;
+}
+`;
+const deg = THREE.Math.degToRad;
+
+const domService = _dom.default.get();
+
+class Decor {
+  constructor(node, world) {
+    this.node = node;
+    this.world = world;
+    this.path = node.getAttribute('decor');
+    this.render_ = new _rxjs.Subject();
+    this.load(model => {
+      this.set(model);
+    });
+  }
+
+  getShaderMaterial() {
+    const material = new THREE.ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      uniforms: {
+        uImage: {
+          type: 't',
+          value: new THREE.Texture()
+        },
+        uOpacity: {
+          type: 'f',
+          value: 1
+        },
+        uTime: {
+          type: 'f',
+          value: performance.now()
+        },
+        uSpeed: {
+          type: 'f',
+          value: 0
+        },
+        uPow: {
+          type: 'f',
+          value: 0
+        },
+        uResolution: {
+          type: 'v2',
+          value: new THREE.Vector2(window.innerWidth, window.innerHeight).multiplyScalar(window.devicePixelRatio)
+        }
+      },
+      side: THREE.FrontSide
+    });
+    return material;
+  }
+
+  getMaterial() {
+    const material = new THREE.MeshBasicMaterial({
+      name: 'transparent',
+      color: 0xffffff,
+      transparent: true,
+      opacity: 1.0,
+      alphaTest: 0.01,
+      side: THREE.FrontSide
+    });
+    return material;
+  }
+
+  load(callback) {
+    const material = USE_SHADER_MATERIAL ? this.getShaderMaterial() : this.getMaterial();
+    const geometry = new THREE.PlaneGeometry(1, 1, 10, 10);
+    const model = new THREE.Mesh(geometry, material);
+    material.map = this.world.materials.loader.load(this.path, texture => {
+      texture.anisotropy = this.world.renderer.capabilities.getMaxAnisotropy(); // texture.magFilter = THREE.NearestFilter;
+      // texture.minFilter = THREE.LinearFilter;
+
+      if (USE_SHADER_MATERIAL) {
+        material.uniforms.uImage.value = texture;
+      }
+
+      material.needsUpdate = true;
+
+      if (typeof callback === 'function') {
+        console.log(this.path);
+        callback(model);
+      }
+    });
+    this.set(model);
+  }
+
+  set(model) {
+    const node = this.node;
+    const world = this.world;
+
+    model.userData.render = () => {
+      this.render_.next();
+    };
+
+    world.scene.add(model);
+    this.model = model;
+    domService.scrollIntersection$(node).subscribe(event => {
+      this.scroll = event.scroll;
+      this.intersection = event.intersection;
+      this.windowRect = event.windowRect;
+      this.cameraRect = world.camera.cameraRect;
+    });
+    this.render_.subscribe(() => {
+      this.update(this.scroll, this.intersection, this.windowRect, this.cameraRect);
+    });
+  }
+
+  opacity(opacity) {
+    this.model.material.opacity = opacity;
+  }
+
+  pow(intersection, offset) {
+    let pow = Math.min(0.0, intersection.offset(offset)) + 1;
+    pow = Math.max(0.0, pow);
+    pow = _ease.default.Sine.InOut(pow);
+    pow -= 1;
+    return pow;
+  }
+
+  update(scroll, intersection, windowRect, cameraRect) {
+    const sx = intersection.width / windowRect.width * cameraRect.width;
+    const sy = intersection.height / windowRect.height * cameraRect.height;
+    const tx = intersection.x * cameraRect.width / windowRect.width - cameraRect.width / 2;
+    const ty = intersection.y * cameraRect.height / windowRect.height - cameraRect.height / 2;
+    const model = this.model;
+    model.scale.x = sx;
+    model.scale.y = sy;
+    model.scale.z = 1;
+    const pow = this.pow(intersection, windowRect.height * 0.75);
+    const opacity = Math.max(0, Math.min(1, pow + 1));
+
+    if (USE_SHADER_MATERIAL) {
+      model.material.uniforms.uTime.value = performance.now();
+      model.material.uniforms.uOpacity.value = opacity;
+      model.material.uniforms.uSpeed.value = scroll.speed ? Math.abs(scroll.speed) : 0;
+    } else {
+      model.material.opacity = opacity;
+    }
+
+    if (this.path.indexOf('doccia-schiuma-decor') !== -1) {
+      model.position.x = tx;
+      model.position.y = -ty;
+      model.rotation.z = deg(35);
+    }
+
+    if (this.path.indexOf('gel-mousse-doccia-decor') !== -1) {
+      model.position.x = tx;
+      model.position.y = -ty;
+    }
+
+    if (this.path.indexOf('intimo-attivo-decor') !== -1) {
+      model.position.x = tx;
+      model.position.y = -ty;
+      model.rotation.z = deg(10) * pow;
+    }
+
+    if (this.path.indexOf('latte-corpo-decor') !== -1) {
+      model.position.x = tx;
+      model.position.y = -ty;
+      model.rotation.z = deg(10) * pow;
+    }
+  }
+
+}
+
+exports.default = Decor;
+
+},{"../ease/ease":201,"../services/dom.service":208,"rxjs":2}],201:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/* jshint esversion: 6 */
 const Ease = {
   Linear: function (t) {
     return t;
@@ -17129,10 +17343,10 @@ const Ease = {
     },
     InOut: function (t) {
       if ((t *= 2) < 1) {
-        return .5 * t * t * t;
+        return 0.5 * t * t * t;
       }
 
-      return .5 * ((t -= 2) * t * t + 2);
+      return 0.5 * ((t -= 2) * t * t + 2);
     }
   },
   Quart: {
@@ -17144,10 +17358,10 @@ const Ease = {
     },
     InOut: function (t) {
       if ((t *= 2) < 1) {
-        return .5 * t * t * t * t;
+        return 0.5 * t * t * t * t;
       }
 
-      return .5 * ((t -= 2) * t * t * t - 2);
+      return 0.5 * ((t -= 2) * t * t * t - 2);
     }
   },
   Quint: {
@@ -17158,7 +17372,10 @@ const Ease = {
       return --t * t * t * t * t + 1;
     },
     InOut: function (t) {
-      if ((t *= 2) < 1) return 0.5 * t * t * t * t * t;
+      if ((t *= 2) < 1) {
+        return 0.5 * t * t * t * t * t;
+      }
+
       return 0.5 * ((t -= 2) * t * t * t * t + 2);
     }
   },
@@ -17210,11 +17427,17 @@ const Ease = {
       }
 
       var offset = 1.70158;
-      if (t == 0) return 0;
-      if (t == 1) return 1;
+
+      if (t === 0) {
+        return 0;
+      }
+
+      if (t === 1) {
+        return 1;
+      }
 
       if (!period) {
-        period = .3;
+        period = 0.3;
       }
 
       if (amplitude < 1) {
@@ -17236,11 +17459,17 @@ const Ease = {
       }
 
       var offset = 1.70158;
-      if (t == 0) return 0;
-      if (t == 1) return 1;
+
+      if (t === 0) {
+        return 0;
+      }
+
+      if (t === 1) {
+        return 1;
+      }
 
       if (!period) {
-        period = .3;
+        period = 0.3;
       }
 
       if (amplitude < 1) {
@@ -17282,10 +17511,16 @@ const Ease = {
       return -Math.pow(2, -10 * t) + 1;
     },
     InOut: function (t) {
-      if (t == 0) return 0;
-      if (t == 1) return 1;
-      if ((t /= .5) < 1) return .5 * Math.pow(2, 10 * (t - 1));
-      return .5 * (-Math.pow(2, -10 * --t) + 2);
+      if (t === 0) {
+        return 0;
+      }
+
+      if (t === 1) {
+        return 1;
+      }
+
+      if ((t /= 0.5) < 1) return 0.5 * Math.pow(2, 10 * (t - 1));
+      return 0.5 * (-Math.pow(2, -10 * --t) + 2);
     }
   },
   Circ: {
@@ -17298,8 +17533,12 @@ const Ease = {
     },
     InOut: function (t) {
       var c = 1;
-      if ((t /= .5) < 1) return -.5 * (Math.sqrt(1 - t * t) - 1);
-      return .5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
+
+      if ((t /= 0.5) < 1) {
+        return -0.5 * (Math.sqrt(1 - t * t) - 1);
+      }
+
+      return 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
     }
   },
   Back: {
@@ -17319,9 +17558,15 @@ const Ease = {
       return t * t * ((overshoot + 1) * t + overshoot) + 1;
     },
     InOut: function (t, overshoot) {
-      if (overshoot == undefined) overshoot = 1.70158;
-      if ((t /= .5) < 1) return .5 * (t * t * (((overshoot *= 1.525) + 1) * t - overshoot));
-      return .5 * ((t -= 2) * t * (((overshoot *= 1.525) + 1) * t + overshoot) + 2);
+      if (overshoot === undefined) {
+        overshoot = 1.70158;
+      }
+
+      if ((t /= 0.5) < 1) {
+        return 0.5 * (t * t * (((overshoot *= 1.525) + 1) * t - overshoot));
+      }
+
+      return 0.5 * ((t -= 2) * t * (((overshoot *= 1.525) + 1) * t + overshoot) + 2);
     }
   }
 };
@@ -17329,7 +17574,7 @@ const outBounce = Ease.Bounce.Out;
 var _default = Ease;
 exports.default = _default;
 
-},{}],201:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17374,8 +17619,10 @@ class Lights extends THREE.Group {
 
 exports.default = Lights;
 
-},{}],202:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 "use strict";
+
+var _decor = _interopRequireDefault(require("./decor/decor"));
 
 var _model = _interopRequireDefault(require("./model/model"));
 
@@ -17392,27 +17639,31 @@ const deg = THREE.Math.degToRad;
 
 const domService = _dom.default.get();
 
-const example = document.querySelector('[example-01]');
+const worldNode = document.querySelector('[world]');
 
-if (example) {
-  const world = new _world.default(example);
-  /*
-  domService.scroll$().subscribe(event => {
-  	world.lights.rotationScroll.y = event.scrollTop * deg(0.01);
-  });
-  */
-
-  const models = [...document.querySelectorAll('[model]')].map(node => {
-    const model = new _model.default(node, world);
-    return model;
-  });
-  const titles = [...document.querySelectorAll('[title]')].map(node => {
-    const title = new _title.default(node);
-    return title;
+if (worldNode) {
+  const world = new _world.default(worldNode, world => {
+    /*
+    domService.scroll$().subscribe(event => {
+    	world.lights.rotationScroll.y = event.scrollTop * deg(0.01);
+    });
+    */
+    const decors = [...document.querySelectorAll('[decor]')].map(node => {
+      const decor = new _decor.default(node, world);
+      return decor;
+    });
+    const models = [...document.querySelectorAll('[model]')].map(node => {
+      const model = new _model.default(node, world);
+      return model;
+    });
+    const titles = [...document.querySelectorAll('[title]')].map(node => {
+      const title = new _title.default(node);
+      return title;
+    });
   });
 }
 
-},{"./model/model":204,"./services/dom.service":207,"./title/title":210,"./world/world":211}],203:[function(require,module,exports){
+},{"./decor/decor":200,"./model/model":205,"./services/dom.service":208,"./title/title":211,"./world/world":212}],204:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17424,20 +17675,36 @@ exports.default = void 0;
 const ENV_MAP_INTENSITY = 1.5;
 
 class Materials {
-  constructor(renderer) {
+  constructor(renderer, callback) {
     this.renderer = renderer;
     const textures = this.textures = this.addTextures();
     const white = this.white = this.getWhite();
+    const transparent = this.transparent = this.getTransparent();
+    const black = this.black = this.getBlack();
     const docciaSchiuma = this.docciaSchiuma = this.getDocciaSchiuma();
+    const gelMousseDoccia = this.gelMousseDoccia = this.getGelMousseDoccia();
+    const intimoAttivo = this.intimoAttivo = this.getIntimoAttivo();
     const latteCorpo = this.latteCorpo = this.getLatteCorpo();
     this.getEquirectangular('three/environment/environment-04.jpg', (texture, backgroundTexture) => {
       textures.environment = texture;
       white.envMap = texture;
       white.needsUpdate = true;
+      transparent.envMap = texture;
+      transparent.needsUpdate = true;
+      black.envMap = texture;
+      black.needsUpdate = true;
       docciaSchiuma.envMap = texture;
       docciaSchiuma.needsUpdate = true;
+      gelMousseDoccia.envMap = texture;
+      gelMousseDoccia.needsUpdate = true;
+      intimoAttivo.envMap = texture;
+      intimoAttivo.needsUpdate = true;
       latteCorpo.envMap = texture;
       latteCorpo.needsUpdate = true;
+
+      if (typeof callback === 'function') {
+        callback(this);
+      }
     });
   }
 
@@ -17447,7 +17714,16 @@ class Materials {
       docciaSchiuma: loader.load('three/models/doccia-schiuma/doccia-schiuma.jpg', texture => {
         texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
       }),
+      gelMousseDoccia: loader.load('three/models/gel-mousse-doccia/gel-mousse-doccia.jpg', texture => {
+        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      }),
+      intimoAttivo: loader.load('three/models/intimo-attivo/intimo-attivo.jpg', texture => {
+        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      }),
       latteCorpo: loader.load('three/models/latte-corpo/latte-corpo.jpg', texture => {
+        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      }),
+      noise: loader.load('three/noise/noise.png', texture => {
         texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
       })
     };
@@ -17462,7 +17738,37 @@ class Materials {
       color: 0xf4f4f6,
       roughness: 0.45,
       metalness: 0.01,
-      envMapIntensity: ENV_MAP_INTENSITY
+      envMapIntensity: ENV_MAP_INTENSITY,
+      side: THREE.FrontSide
+    });
+    return material;
+  }
+
+  getTransparent() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'transparent',
+      color: 0xaaaaaa,
+      roughness: 0.05,
+      metalness: 0.05,
+      opacity: 0.4,
+      transparent: true,
+      alphaTest: 0.3,
+      envMapIntensity: ENV_MAP_INTENSITY * 2,
+      side: THREE.FrontSide
+    });
+    return material;
+  }
+
+  getBlack() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'black',
+      color: 0x222222,
+      roughness: 0.05,
+      metalness: 0.05,
+      envMapIntensity: ENV_MAP_INTENSITY,
+      side: THREE.FrontSide
     });
     return material;
   }
@@ -17476,7 +17782,38 @@ class Materials {
       roughness: 0.45,
       metalness: 0.01,
       map: this.textures.docciaSchiuma,
-      envMapIntensity: ENV_MAP_INTENSITY
+      envMapIntensity: ENV_MAP_INTENSITY,
+      side: THREE.FrontSide
+    });
+    return material;
+  }
+
+  getGelMousseDoccia() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'gelMousseDoccia',
+      color: 0xf4f4f6,
+      // 0xefeff8,
+      roughness: 0.45,
+      metalness: 0.01,
+      map: this.textures.gelMousseDoccia,
+      envMapIntensity: ENV_MAP_INTENSITY,
+      side: THREE.FrontSide
+    });
+    return material;
+  }
+
+  getIntimoAttivo() {
+    let material;
+    material = new THREE.MeshStandardMaterial({
+      name: 'intimoAttivo',
+      color: 0xf4f4f6,
+      // 0xefeff8,
+      roughness: 0.45,
+      metalness: 0.01,
+      map: this.textures.intimoAttivo,
+      envMapIntensity: ENV_MAP_INTENSITY,
+      side: THREE.FrontSide
     });
     return material;
   }
@@ -17490,7 +17827,8 @@ class Materials {
       roughness: 0.45,
       metalness: 0.01,
       map: this.textures.latteCorpo,
-      envMapIntensity: ENV_MAP_INTENSITY
+      envMapIntensity: ENV_MAP_INTENSITY,
+      side: THREE.FrontSide
     });
     return material;
   }
@@ -17524,7 +17862,7 @@ class Materials {
 
 exports.default = Materials;
 
-},{}],204:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17558,28 +17896,56 @@ class Model {
     loader.load('./three/models/' + this.key + '/' + this.key + '.fbx', object => {
       object.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          const white = this.world.materials.white;
-          let material;
-
           switch (this.key) {
             case 'doccia-schiuma':
-              material = this.world.materials.docciaSchiuma;
-
               if (child.name === 'corpo') {
-                child.material = material;
+                child.material = this.world.materials.docciaSchiuma.clone();
               } else {
-                child.material = white;
+                child.material = this.world.materials.white.clone();
+              }
+
+              break;
+
+            case 'gel-mousse-doccia':
+              switch (child.name) {
+                case 'spray_bottle':
+                  child.renderOrder = 1;
+                  child.material = this.world.materials.gelMousseDoccia.clone();
+                  break;
+
+                case 'tappo':
+                  child.renderOrder = 3;
+                  child.material = this.world.materials.transparent.clone();
+                  break;
+
+                case 'spray':
+                case 'cilindro1':
+                case 'cilindro2':
+                  child.renderOrder = 2;
+                  child.material = this.world.materials.black.clone();
+                  break;
+
+                default:
+                  child.renderOrder = 1;
+                  child.material = this.world.materials.white.clone();
+              }
+
+              break;
+
+            case 'intimo-attivo':
+              if (child.name === 'corpo') {
+                child.material = this.world.materials.intimoAttivo.clone();
+              } else {
+                child.material = this.world.materials.white.clone();
               }
 
               break;
 
             case 'latte-corpo':
-              material = this.world.materials.latteCorpo;
-
-              if (child.name === 'model') {
-                child.material = material;
+              if (child.name === 'corpo') {
+                child.material = this.world.materials.latteCorpo.clone();
               } else {
-                child.material = white;
+                child.material = this.world.materials.white.clone();
               }
 
               break;
@@ -17605,45 +17971,79 @@ class Model {
     this.model = model;
     world.scene.add(model);
     domService.scrollIntersection$(node).subscribe(event => {
-      this.update(event.intersection, event.windowRect, world.camera.viewRect);
+      this.update(event.intersection, event.windowRect, world.camera.cameraRect);
     });
   }
 
-  update(intersection, windowRect, viewRect) {
-    const sx = intersection.width / windowRect.width * 1; // * viewRect.width;
+  opacity(opacity) {
+    this.model.traverse(child => {
+      if (child instanceof THREE.Mesh) {
+        child.material.opacity = child.material.name === 'transparent' ? opacity * 0.4 : opacity;
+        child.material.transparent = true;
+        child.material.alphaTest = 0.02;
+      }
+    });
+  }
 
-    const sy = intersection.height / windowRect.height * 1; // * viewRect.height;
+  pow(intersection, offset) {
+    let pow = Math.min(0.0, intersection.offset(offset)) + 1;
+    pow = Math.max(0.0, pow);
+    pow = _ease.default.Sine.InOut(pow);
+    pow -= 1;
+    return pow;
+  }
 
-    const tx = intersection.x * viewRect.width / windowRect.width - viewRect.width / 2;
-    const ty = intersection.y * viewRect.height / windowRect.height - viewRect.height / 2; // console.log(intersection.width, viewRect.width, windowRect.width);
-
+  update(intersection, windowRect, cameraRect) {
+    const sx = intersection.width / windowRect.width * cameraRect.width;
+    const sy = intersection.height / windowRect.height * cameraRect.height;
+    const tx = intersection.x * cameraRect.width / windowRect.width - cameraRect.width / 2;
+    const ty = intersection.y * cameraRect.height / windowRect.height - cameraRect.height / 2;
     const model = this.model;
     let pow, scale;
 
     switch (this.key) {
       case 'doccia-schiuma':
-        pow = _ease.default.Quad.InOut(1 - intersection.offset(500));
-        scale = Math.min(sx, sy) * 0.8;
-        model.scale.x = model.scale.y = model.scale.z = scale; // model.rotation.y = -deg(20) + deg(40) * pow;
-        // model.rotation.z = -deg(10) + deg(20) * pow;
-        // model.position.x = tx - (1 - 2 * pow) * scale * 3;
-        // model.position.y = -ty;
+        scale = sx / 40;
+        model.scale.x = model.scale.y = model.scale.z = scale;
+        pow = this.pow(intersection, window.innerHeight * 0.5);
+        model.rotation.x = deg(16) * pow;
+        model.rotation.y = deg(16) * pow;
+        model.rotation.z = deg(25) + deg(10) * pow;
+        model.position.x = tx + 2;
+        model.position.y = -ty;
+        break;
 
-        model.rotation.x = -deg(5);
-        model.rotation.y = deg(5);
-        model.rotation.z = deg(35) + deg(20) - deg(40) * pow;
-        model.position.x = tx;
-        model.position.y = -ty + (-20 + 20 * pow) * scale;
+      case 'gel-mousse-doccia':
+        scale = sx / 8;
+        model.scale.x = model.scale.y = model.scale.z = scale;
+        pow = this.pow(intersection, 100);
+        model.rotation.y = deg(180) * pow;
+        model.rotation.z = deg(5) * pow;
+        model.position.x = tx - 5 * -pow;
+        model.position.y = -ty - 2;
+        this.opacity(Math.max(0, Math.min(1, pow + 1)));
+        break;
+
+      case 'intimo-attivo':
+        scale = sx / 8;
+        model.scale.x = model.scale.y = model.scale.z = scale;
+        pow = Math.min(0.0, intersection.offset(100));
+        model.children[1].rotation.z = -deg(15) - deg(180) * pow;
+        model.rotation.z = deg(35);
+        model.position.x = tx + 5 * -pow;
+        model.position.y = -ty + 2;
+        this.opacity(Math.max(0, Math.min(1, pow + 1)));
         break;
 
       case 'latte-corpo':
-        pow = _ease.default.Quad.Out(1 - intersection.pow.y);
-        scale = Math.min(sx, sy) * 0.9;
+        scale = sx / 5.1;
         model.scale.x = model.scale.y = model.scale.z = scale;
-        model.rotation.y = -deg(20) + deg(40) * pow;
-        model.rotation.z = -deg(10) + deg(20) * pow;
-        model.position.x = tx - (1 - 2 * pow) * scale * 3;
+        pow = Math.min(0.0, intersection.offset(100));
+        model.rotation.y = deg(20) * pow;
+        model.rotation.z = deg(10) * pow;
+        model.position.x = tx - 3 * -pow;
         model.position.y = -ty;
+        this.opacity(Math.max(0, Math.min(1, pow + 1)));
         break;
     } // console.log('model', ty, scale);
 
@@ -17667,7 +18067,7 @@ class Model {
 
 exports.default = Model;
 
-},{"../ease/ease":200,"../services/dom.service":207}],205:[function(require,module,exports){
+},{"../ease/ease":201,"../services/dom.service":208}],206:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17700,7 +18100,7 @@ class Renderer extends THREE.WebGLRenderer {
 
 exports.default = Renderer;
 
-},{}],206:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17720,7 +18120,7 @@ class Scene extends THREE.Scene {
 
 exports.default = Scene;
 
-},{}],207:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18208,6 +18608,7 @@ DomService.rafAndRect$ = (0, _rxjs.combineLatest)(DomService.raf$, DomService.wi
 
 DomService.locomotiveScrollEvent$ = function () {
   const event = {
+    speed: 0,
     scrollTop: 0,
     scrollLeft: 0,
     direction: 0,
@@ -18225,6 +18626,7 @@ DomService.locomotiveScrollEvent$ = function () {
   }).pipe((0, _operators.map)(instance => {
     // instance.direction, instance.speed
     // const progress = instance.scroll.y / instance.limit;
+    event.speed = instance.speed;
     event.scrollTop = instance.scroll.y;
     event.direction = instance.direction;
     return event;
@@ -18258,7 +18660,7 @@ DomService.scroll$ = function () {
 
 DomService.scrollAndRect$ = (0, _rxjs.combineLatest)(DomService.scroll$, DomService.windowRect$);
 
-},{"./rect":208,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],208:[function(require,module,exports){
+},{"./rect":209,"locomotive-scroll":1,"rxjs":2,"rxjs/internal/scheduler/animationFrame":161,"rxjs/operators":198}],209:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18366,8 +18768,8 @@ class Rect {
           max = this.rect.height - this.height;
         }
 
-        let pow = 1 - (this.top + offset - min) / max;
-        pow = Math.max(0, Math.min(1, pow));
+        let pow = 0.5 - (this.top + offset - min) / max; // pow = Math.max(0, Math.min(1, pow));
+
         return pow;
       }
     });
@@ -18414,7 +18816,7 @@ class Rect {
 
 exports.default = Rect;
 
-},{}],209:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18468,7 +18870,7 @@ class Emittable {
 
 exports.default = Emittable;
 
-},{}],210:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18508,21 +18910,23 @@ class Title {
       // const index = getComputedStyle(char).getPropertyValue('--char-index');
       if (direction === 'left') {
         const i = splitting.chars.length - index;
+        let pow = intersection.offset(100 + i * 50, 2);
+        pow = Math.max(0, Math.min(1, pow + 1)); // to 0-1
 
-        let pow = _ease.default.Expo.InOut(1 - intersection.offset(i * h * 0.2, 2));
-
+        pow = _ease.default.Expo.InOut(pow);
         TweenMax.set(char, {
-          x: -(5 + 0.1 * i) * (h * 0.1) * pow,
-          opacity: 1 - pow
+          x: -(5 + 0.1 * i) * (h * 0.1) * (1 - pow),
+          opacity: pow
         });
       } else {
         const i = index;
+        let pow = intersection.offset(100 + i * 50, 2);
+        pow = Math.max(0, Math.min(1, pow + 1)); // to 0-1
 
-        let pow = _ease.default.Expo.InOut(1 - intersection.offset(i * h * 0.2, 2));
-
+        pow = _ease.default.Expo.InOut(pow);
         TweenMax.set(char, {
-          x: (5 + 0.1 * i) * (h * 0.1) * pow,
-          opacity: 1 - pow
+          x: (5 + 0.1 * i) * (h * 0.1) * (1 - pow),
+          opacity: pow
         });
       }
     });
@@ -18532,7 +18936,7 @@ class Title {
 
 exports.default = Title;
 
-},{"../ease/ease":200,"../services/dom.service":207}],211:[function(require,module,exports){
+},{"../ease/ease":201,"../services/dom.service":208}],212:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18556,7 +18960,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /* jshint esversion: 6 */
 class World extends _emittable.default {
-  constructor(container, product) {
+  constructor(container, callback) {
     super();
     this.clock = new THREE.Clock();
     this.container = container;
@@ -18568,8 +18972,12 @@ class World extends _emittable.default {
     const scene = this.scene = new _scene.default();
     const camera = this.camera = new _camera.default(container, scene);
     const renderer = this.renderer = new _renderer.default(container);
-    const materials = this.materials = new _materials.default(renderer);
     const lights = this.lights = new _lights.default(scene);
+    const materials = this.materials = new _materials.default(renderer, materials => {
+      if (typeof callback === 'function') {
+        callback(this);
+      }
+    });
     this.resize = this.resize.bind(this);
     this.resize();
     window.addEventListener('resize', this.resize, false);
@@ -18602,6 +19010,11 @@ class World extends _emittable.default {
       const tick = Math.floor(time * 60);
       */
 
+      this.scene.children.forEach(x => {
+        if (typeof x.userData.render === 'function') {
+          x.userData.render();
+        }
+      });
       this.lights.render(time);
       const camera = this.camera;
       renderer.render(scene, camera);
@@ -18625,5 +19038,5 @@ class World extends _emittable.default {
 
 exports.default = World;
 
-},{"../camera/camera":199,"../lights/lights":201,"../materials/materials":203,"../renderer/renderer":205,"../scene/scene":206,"../threejs/interactive/emittable":209}]},{},[202]);
+},{"../camera/camera":199,"../lights/lights":202,"../materials/materials":204,"../renderer/renderer":206,"../scene/scene":207,"../threejs/interactive/emittable":210}]},{},[203]);
 //# sourceMappingURL=main.js.map

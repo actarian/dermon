@@ -34,7 +34,8 @@ button,
 .btn--primary {
 	display: inline-block;
 
-	&:hover, &:focus {
+	&:hover,
+	&:focus {
 
 		span {
 			color: #fff;
@@ -47,14 +48,18 @@ button,
 	span {
 		display: inline-block;
 		padding: 15px 50px;
-		text-transform: uppercase;
 		font-size: 13px;
-		font-weight: $font-semibold;
+		font-weight: $font-regular;
 		color: $foreground-primary;
 		border: 2px solid $foreground-primary;
 		border-radius: 500px;
 		transition: all ease-in-out .2s;
 		font-family: $font-primary;
+	}
+
+	b {
+		font-weight: $font-semibold;
+		text-transform: uppercase;
 	}
 
 	.section--negative & {
@@ -127,4 +132,3 @@ button,
 		display: block;
 	}
 }
-

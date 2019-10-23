@@ -97,8 +97,8 @@ export default class Rect {
 					min = this.rect.height * 0.1;
 					max = this.rect.height - this.height;
 				}
-				let pow = 1 - (this.top + offset - min) / max;
-				pow = Math.max(0, Math.min(1, pow));
+				let pow = 0.5 - (this.top + offset - min) / max;
+				// pow = Math.max(0, Math.min(1, pow));
 				return pow;
 			}
 		});

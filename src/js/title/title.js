@@ -29,17 +29,21 @@ export default class Title {
 			// const index = getComputedStyle(char).getPropertyValue('--char-index');
 			if (direction === 'left') {
 				const i = (splitting.chars.length - index);
-				let pow = Ease.Expo.InOut(1 - (intersection.offset(i * h * 0.2, 2)));
+				let pow = intersection.offset(100 + i * 50, 2);
+				pow = Math.max(0, Math.min(1, pow + 1)); // to 0-1
+				pow = Ease.Expo.InOut(pow);
 				TweenMax.set(char, {
-					x: -(5 + 0.1 * i) * (h * 0.1) * pow,
-					opacity: (1 - pow)
+					x: -(5 + 0.1 * i) * (h * 0.1) * (1 - pow),
+					opacity: pow
 				});
 			} else {
 				const i = index;
-				let pow = Ease.Expo.InOut(1 - (intersection.offset(i * h * 0.2, 2)));
+				let pow = intersection.offset(100 + i * 50, 2);
+				pow = Math.max(0, Math.min(1, pow + 1)); // to 0-1
+				pow = Ease.Expo.InOut(pow);
 				TweenMax.set(char, {
-					x: (5 + 0.1 * i) * (h * 0.1) * pow,
-					opacity: (1 - pow)
+					x: (5 + 0.1 * i) * (h * 0.1) * (1 - pow),
+					opacity: pow
 				});
 			}
 		});
